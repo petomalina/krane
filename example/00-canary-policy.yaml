@@ -1,0 +1,11 @@
+apiVersion: krane.sh/v1
+kind: CanaryPolicy
+metadata:
+  name: my-app
+  namespace: krane
+spec:
+  base: nginx-deployment
+  virtualService: nginx-vs
+  baselineMode: NEW
+  destinationRule:
+    host: nginx-service

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-canary
+  namespace: krane
+  labels:
+    app: nginx
+    release: canary
+    krane.sh/canary-policy: my-app
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: tutum/hello-world
+          ports:
+            - containerPort: 80

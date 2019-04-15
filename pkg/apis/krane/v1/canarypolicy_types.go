@@ -1,18 +1,35 @@
 package v1
 
 import (
+	"github.com/petomalina/krane/pkg/apis/networking/v1alpha3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+type BaselineMode string
+
+const (
+	BaselineModeNew BaselineMode = "NEW"
+	BaselineModeOld              = "OLD"
+)
+
 // CanaryPolicySpec defines the desired state of CanaryPolicy
 // +k8s:openapi-gen=true
 type CanaryPolicySpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	// Base is the original deployment that the canary will use
+	// to copy baseline
+	Base string `json:"base,omitempty"`
+	// VirtualService is a name of bindable virtualservice that
+	// will be used for traffic splitting
+	VirtualService string `json:"virtualService,omitempty"`
+	// Mode is used to determine if baseline uses original
+	// or canary configuration
+	BaselineMode BaselineMode `json:"baselineMode,omitempty"`
+	// DestinationRule is a rule that will be created when a new
+	// canary will be deployed
+	DestinationRule v1alpha3.DestinationRuleSpec
 }
 
 // CanaryPolicyStatus defines the observed state of CanaryPolicy

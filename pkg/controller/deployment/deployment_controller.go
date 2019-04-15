@@ -2,6 +2,8 @@ package deployment
 
 import (
 	"context"
+	"github.com/petomalina/krane/pkg/apis/krane/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	appsv1 "k8s.io/api/apps/v1"
 
@@ -79,11 +81,49 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 	}
 
 	// get the canary configuration
-	canaryPolicy, ok := instance.ObjectMeta.Annotations["krane.sh/canary-policy"]
+	canaryPolicy, ok := instance.ObjectMeta.Labels["krane.sh/canary-policy"]
 	if !ok {
 		return reconcile.Result{}, nil
 	}
 	log.Info("Reconciling a Canary Deployment", "policy", canaryPolicy, "deployment", instance.Name)
 
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, canary *appsv1.Deployment, policy *v1.CanaryPolicy) (*appsv1.Deployment, error) {
+	var baseline *appsv1.Deployment
+
+	// get the old deployment to retrieve containers
+	base := &appsv1.Deployment{}
+	err := r.client.Get(ctx, types.NamespacedName{
+		Namespace: canary.Namespace,
+		Name:      policy.Spec.Base,
+	}, base)
+	if err != nil {
+		return nil, err
+	}
+
+	// Default to new baseline mode
+	if policy.Spec.BaselineMode == "" {
+		policy.Spec.BaselineMode = v1.BaselineModeNew
+	}
+
+	switch policy.Spec.BaselineMode {
+	case v1.BaselineModeNew:
+		baseline = canary.DeepCopy()
+		// copy over previous container configuration
+		baseline.Spec.Template.Spec.Containers = base.Spec.Template.Spec.Containers
+
+	case v1.BaselineModeOld:
+		baseline = base.DeepCopy()
+	}
+
+	baseline.ObjectMeta.Name += "-baseline"
+	// argh, golang, why you no support pointers
+	singleReplica := int32(1)
+	baseline.Spec.Replicas = &singleReplica
+	// register release to be baseline
+	baseline.ObjectMeta.Labels["release"] = "baseline"
+
+	return baseline, nil
 }

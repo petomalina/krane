@@ -47,3 +47,10 @@ rules:
   - canarypolicies
   verbs:
   - '*'
+- apiGroups:
+  - networking.istio.io
+  resources:
+  - '*'
+  - destinationrules
+  verbs:
+  - '*'
