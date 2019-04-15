@@ -2,22 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bd1bff4-2993-4070-8bd2-158e107d3c2a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/deploy/crds/krane_v1_canary_crd.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deploy/crds/krane_v1_canarypolicy_crd.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/00-canary-policy.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/01-gw.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/01-vs.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/02-nginx-canary.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/doc.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/register.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/virtualservice_types.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/zz_generated.defaults.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deploy/role.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/deploy/role.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/01-nginx-deployment.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/01-nginx-deployment.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/apis/apis.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/apis/apis.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/apis/krane/v1/zz_generated.deepcopy.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/apis/krane/v1/zz_generated.deepcopy.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -33,17 +21,29 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="851">
-                  <caret line="70" column="41" lean-forward="true" selection-start-line="70" selection-start-column="41" selection-end-line="70" selection-end-column="41" />
+                <state relative-caret-position="1298">
+                  <caret line="150" lean-forward="true" selection-start-line="150" selection-end-line="150" />
+                  <folding>
+                    <element signature="e#20#479#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/example/01-nginx-deployment.yaml">
+            <entry file="file://$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="203">
-                  <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
+                <state relative-caret-position="348">
+                  <caret line="14" column="54" selection-start-line="14" selection-start-column="54" selection-end-line="14" selection-end-column="54" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/pkg/apis/networking/v1alpha3/virtualservice_types.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state>
+                  <caret column="16" lean-forward="true" selection-start-column="16" selection-end-column="16" />
                 </state>
               </provider>
             </entry>
@@ -61,7 +61,7 @@
             <entry file="file://$PROJECT_DIR$/example/01-gw.yaml">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="406">
-                  <caret line="14" column="28" lean-forward="true" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
+                  <caret line="14" column="28" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
                 </state>
               </provider>
             </entry>
@@ -82,8 +82,17 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/example/02-nginx-canary.yaml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="638">
-                  <caret line="22" column="31" lean-forward="true" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
+                <state relative-caret-position="232">
+                  <caret line="8" column="34" lean-forward="true" selection-start-line="8" selection-start-column="34" selection-end-line="8" selection-end-column="34" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1895">
+                  <caret line="70" column="1" selection-start-line="70" selection-start-column="1" selection-end-line="70" selection-end-column="1" />
                 </state>
               </provider>
             </entry>
@@ -92,7 +101,7 @@
             <entry file="file://$PROJECT_DIR$/example/00-canary-policy.yaml">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="87">
-                  <caret line="3" column="14" lean-forward="true" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
+                  <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
                 </state>
               </provider>
             </entry>
@@ -133,13 +142,14 @@
         <option value="$PROJECT_DIR$/pkg/controller/controller.go" />
         <option value="$PROJECT_DIR$/cmd/manager/main.go" />
         <option value="$PROJECT_DIR$/pkg/apis/apis.go" />
-        <option value="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go" />
         <option value="$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go" />
         <option value="$PROJECT_DIR$/example/00-canary-policy.yaml" />
         <option value="$PROJECT_DIR$/example/01-gw.yaml" />
         <option value="$PROJECT_DIR$/example/01-vs.yaml" />
         <option value="$PROJECT_DIR$/example/01-nginx-deployment.yaml" />
         <option value="$PROJECT_DIR$/example/02-nginx-canary.yaml" />
+        <option value="$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go" />
+        <option value="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go" />
         <option value="$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go" />
       </list>
     </option>
@@ -192,6 +202,14 @@
               <item name="pkg" type="462c0819:PsiDirectoryNode" />
               <item name="apis" type="462c0819:PsiDirectoryNode" />
               <item name="networking" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="krane" type="b2602c69:ProjectViewProjectNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
+              <item name="pkg" type="462c0819:PsiDirectoryNode" />
+              <item name="apis" type="462c0819:PsiDirectoryNode" />
+              <item name="networking" type="462c0819:PsiDirectoryNode" />
+              <item name="v1alpha3" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="krane" type="b2602c69:ProjectViewProjectNode" />
@@ -254,7 +272,7 @@
       <window_info anchor="bottom" id="Terminal" weight="0.32950193" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" weight="0.32950193" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32967636" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32912782" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -271,7 +289,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init: added initial canary and canary-policy types with deployment controller" />
-    <option name="LAST_COMMIT_MESSAGE" value="init: added initial canary and canary-policy types with deployment controller" />
+    <MESSAGE value="controller: deployment now supports creating baseline from stable release" />
+    <option name="LAST_COMMIT_MESSAGE" value="controller: deployment now supports creating baseline from stable release" />
   </component>
   <component name="VgoProject">
     <proxy>direct</proxy>
@@ -360,13 +379,6 @@
     <entry file="file://$PROJECT_DIR$/deploy/role_binding.yaml">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/vendor/github.com/go-logr/logr/logr.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1073">
-          <caret line="133" column="4" selection-start-line="133" selection-start-column="4" selection-end-line="133" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../../../pkg/mod/k8s.io/client-go@v11.0.0+incompatible/rest/request.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="964">
@@ -421,19 +433,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/apis/networking/v1alpha3/virtualservice_types.go">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="638">
-          <caret line="24" column="1" selection-start-line="24" selection-start-column="1" selection-end-line="24" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vendor/k8s.io/apimachinery/pkg/types/namespacedname.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="812">
@@ -465,35 +464,66 @@
     <entry file="file://$PROJECT_DIR$/example/01-gw.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="406">
-          <caret line="14" column="28" lean-forward="true" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
+          <caret line="14" column="28" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/example/00-canary-policy.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="87">
-          <caret line="3" column="14" lean-forward="true" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
+          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1895">
+          <caret line="70" column="1" selection-start-line="70" selection-start-column="1" selection-end-line="70" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vendor/github.com/go-logr/logr/logr.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1828">
+          <caret line="142" column="4" selection-start-line="142" selection-start-column="4" selection-end-line="142" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/example/01-nginx-deployment.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="203">
-          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
+        <state relative-caret-position="174">
+          <caret line="6" column="14" lean-forward="true" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/apis/networking/v1alpha3/virtualservice_types.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="16" lean-forward="true" selection-start-column="16" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/example/02-nginx-canary.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="638">
-          <caret line="22" column="31" lean-forward="true" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
+        <state relative-caret-position="232">
+          <caret line="8" column="34" lean-forward="true" selection-start-line="8" selection-start-column="34" selection-end-line="8" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="14" column="54" selection-start-line="14" selection-start-column="54" selection-end-line="14" selection-end-column="54" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="851">
-          <caret line="70" column="41" lean-forward="true" selection-start-line="70" selection-start-column="41" selection-end-line="70" selection-end-column="41" />
+        <state relative-caret-position="1298">
+          <caret line="150" lean-forward="true" selection-start-line="150" selection-end-line="150" />
+          <folding>
+            <element signature="e#20#479#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

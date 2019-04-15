@@ -10,9 +10,9 @@ import (
 // DestinationRuleSpec defines the desired state of DestinationRule
 // +k8s:openapi-gen=true
 type DestinationRuleSpec struct {
-	Host          string                 `json:"host,omitempty"`
-	TrafficPolicy map[string]interface{} `json:"traffic_policy,omitempty"`
-	Subsets       []*Subset              `json:"subsets,omitempty"`
+	Host string `json:"host,omitempty"`
+	//TrafficPolicy map[string]interface{} `json:"traffic_policy,omitempty"`
+	Subsets []*Subset `json:"subsets,omitempty"`
 }
 
 // +k8s:openapi-gen=true
@@ -21,7 +21,7 @@ type Subset struct {
 
 	Labels map[string]string `json:"labels,omitempty"`
 
-	TrafficPolicy map[string]interface{} `json:"traffic_policy,omitempty"`
+	//TrafficPolicy map[string]interface{} `json:"traffic_policy,omitempty"`
 }
 
 // DestinationRuleStatus defines the observed state of DestinationRule

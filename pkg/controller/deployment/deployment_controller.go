@@ -2,18 +2,21 @@ package deployment
 
 import (
 	"context"
+	"github.com/go-logr/logr"
 	"github.com/petomalina/krane/pkg/apis/krane/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	appsv1 "k8s.io/api/apps/v1"
 
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
@@ -67,12 +70,14 @@ type ReconcileDeployment struct {
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
 func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+	ctx := context.Background()
+
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Deployment")
 
-	// Fetch the Deployment instance
-	instance := &appsv1.Deployment{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	// Fetch the Deployment canaryInstance
+	canaryInstance := &appsv1.Deployment{}
+	err := r.client.Get(ctx, request.NamespacedName, canaryInstance)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return reconcile.Result{}, nil
@@ -81,22 +86,97 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 	}
 
 	// get the canary configuration
-	canaryPolicy, ok := instance.ObjectMeta.Labels["krane.sh/canary-policy"]
+	canaryPolicyName, ok := canaryInstance.ObjectMeta.Labels["krane.sh/canary-policy"]
 	if !ok {
+		log.Info("Skipping reconcilement, no canary-policy set")
 		return reconcile.Result{}, nil
 	}
-	log.Info("Reconciling a Canary Deployment", "policy", canaryPolicy, "deployment", instance.Name)
+	// enhance logger for policy and deployment
+	reqLogger = reqLogger.WithValues("policy", canaryPolicyName, "deployment", canaryInstance.Name)
+	log.Info("Reconciling a Canary Deployment")
+
+	// get the policy
+	canaryPolicy := &v1.CanaryPolicy{}
+	err = r.client.Get(ctx, types.NamespacedName{
+		Namespace: request.Namespace,
+		Name:      canaryPolicyName,
+	}, canaryPolicy)
+	if err != nil {
+		log.Error(err, "Canary policy could not be found for deployment")
+		return reconcile.Result{}, err
+	}
+
+	// reconcile the canary object for this canary deployment
+	if err = r.reconcileCanaryObject(ctx, reqLogger, canaryInstance, canaryPolicy); err != nil {
+		return reconcile.Result{}, err
+	}
 
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, canary *appsv1.Deployment, policy *v1.CanaryPolicy) (*appsv1.Deployment, error) {
+func (r *ReconcileDeployment) reconcileCanaryObject(ctx context.Context, log logr.Logger, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) error {
+	_, ok := canaryInstance.ObjectMeta.Labels["krane.sh/canary-config"]
+	if !ok {
+		canaryConfig := r.createCanaryConfig(ctx, canaryInstance, policy)
+		err := r.client.Create(ctx, canaryConfig)
+		if err != nil {
+			log.Error(err, "Canary Config creation failed")
+			return err
+		}
+	}
+
+	// retrieve the canary configuration for this deployment
+	canaryConfig := &v1.Canary{}
+	canaryConfigName := policy.Name + "-" + canaryInstance.Name
+	log = log.WithValues("canary-config", canaryConfigName)
+
+	err := r.client.Get(ctx, types.NamespacedName{
+		Namespace: canaryInstance.Namespace,
+		Name:      canaryConfigName,
+	}, canaryConfig)
+	if err != nil {
+		log.Error(err, "Getting canary configuration failed")
+		return err
+	}
+
+	// update the canary instance with the canary-config
+	canaryInstance.ObjectMeta.Labels["krane.sh/canary-config"] = canaryConfig.Name
+	err = r.client.Update(ctx, canaryInstance)
+	if err != nil {
+		log.Error(err, "Error updating canary-config on canary instance")
+		return err
+	}
+
+	log.Info("Reconciliation complete")
+
+	return nil
+}
+
+func (r *ReconcileDeployment) createCanaryConfig(ctx context.Context, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) *v1.Canary {
+	return &v1.Canary{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      policy.Name + "-" + canaryInstance.Name,
+			Namespace: policy.Namespace,
+		},
+		Spec: v1.CanarySpec{
+			Policy:   policy.Name,
+			Canary:   canaryInstance.Name,
+			Baseline: canaryInstance.Name + "-baseline",
+			Base:     policy.Spec.Base,
+		},
+		Status: v1.CanaryStatus{
+			Progress: v1.CanaryProgress_Initializing,
+		},
+	}
+}
+
+func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) (*appsv1.Deployment, error) {
 	var baseline *appsv1.Deployment
 
 	// get the old deployment to retrieve containers
 	base := &appsv1.Deployment{}
 	err := r.client.Get(ctx, types.NamespacedName{
-		Namespace: canary.Namespace,
+		Namespace: canaryInstance.Namespace,
 		Name:      policy.Spec.Base,
 	}, base)
 	if err != nil {
@@ -110,7 +190,7 @@ func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, cana
 
 	switch policy.Spec.BaselineMode {
 	case v1.BaselineModeNew:
-		baseline = canary.DeepCopy()
+		baseline = canaryInstance.DeepCopy()
 		// copy over previous container configuration
 		baseline.Spec.Template.Spec.Containers = base.Spec.Template.Spec.Containers
 

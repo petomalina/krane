@@ -10,17 +10,42 @@ import (
 // CanarySpec defines the desired state of Canary
 // +k8s:openapi-gen=true
 type CanarySpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	Policy string `json:"policy,omitempty"`
+
+	Canary   string `json:"canary,omitempty"`
+	Baseline string `json:"baseline,omitempty"`
+	Base     string `json:"base,omitempty"`
 }
+
+// CanaryProgress is a progress of the Krane object during its deployment
+type CanaryProgress string
+
+const (
+	// Initializing indicates that deployment creation and pod initialization
+	// is in progress and the operator is waiting until pretest can start
+	CanaryProgress_Initializing CanaryProgress = "initializing"
+	// Test indicates that the service is being tested using the pretest
+	// container to make sure the container can be routed
+	CanaryProgress_Test = "pretest"
+	// Canary indicates that the operator has split the traffic, created an
+	// additional replica of the stable Krane deployment and started the collection
+	// of prometheus metrics
+	CanaryProgress_Canary = "canary"
+	// Judging indicates that the Judge container has started to process metrics
+	// that could not be judged in the Canary phase (e.g. full histograms)
+	CanaryProgress_Judging = "judging"
+	// Reporting indicates that the operator is trying to report results of the test
+	// to the pre-configured destination (e.g. github repository)
+	CanaryProgress_Reporting = "reporting"
+	// Promithing indicates that the current Krane deployment is being reflected into
+	// the stable Krane deployment
+	CanaryProgress_Promoting = "promoting"
+)
 
 // CanaryStatus defines the observed state of Canary
 // +k8s:openapi-gen=true
 type CanaryStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	Progress CanaryProgress `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
