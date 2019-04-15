@@ -2,7 +2,6 @@ package deployment
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/petomalina/krane/pkg/apis/krane/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -179,7 +178,6 @@ func (r *ReconcileDeployment) reconcileCanaryObject(ctx context.Context, log log
 			return err
 		}
 
-		fmt.Printf("%+v\n", baseline)
 		log.Info("Creating baseline deployment")
 		err = r.client.Create(ctx, baseline)
 		if err != nil {
@@ -250,6 +248,10 @@ func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, cana
 	// argh, golang, why you no support pointers
 	singleReplica := int32(1)
 	baseline.Spec.Replicas = &singleReplica
+
+	// connect selectors
+	baseline.Spec.Selector.MatchLabels["release"] = "baseline"
+	baseline.Spec.Template.ObjectMeta.Labels["release"] = "baseline"
 
 	return baseline, nil
 }

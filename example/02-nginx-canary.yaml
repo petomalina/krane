@@ -11,13 +11,15 @@ spec:
   selector:
     matchLabels:
       app: nginx
+      release: canary
   template:
     metadata:
       labels:
         app: nginx
+        release: canary
     spec:
       containers:
-        - name: nginx
-          image: tutum/hello-world
-          ports:
-            - containerPort: 80
+      - name: nginx
+        image: tutum/hello-world
+        ports:
+        - containerPort: 80
