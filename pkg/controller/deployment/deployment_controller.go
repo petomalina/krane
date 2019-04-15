@@ -117,6 +117,7 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 func (r *ReconcileDeployment) reconcileCanaryObject(ctx context.Context, log logr.Logger, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) error {
 	_, ok := canaryInstance.ObjectMeta.Labels["krane.sh/canary-config"]
 	if !ok {
+		log.Info("Creating Canary Config")
 		canaryConfig := r.createCanaryConfig(ctx, canaryInstance, policy)
 		err := r.client.Create(ctx, canaryConfig)
 		if err != nil {
@@ -141,10 +142,33 @@ func (r *ReconcileDeployment) reconcileCanaryObject(ctx context.Context, log log
 
 	// update the canary instance with the canary-config
 	canaryInstance.ObjectMeta.Labels["krane.sh/canary-config"] = canaryConfig.Name
+	log.Info("Updating canary instance reference to Canary Config")
 	err = r.client.Update(ctx, canaryInstance)
 	if err != nil {
 		log.Error(err, "Error updating canary-config on canary instance")
 		return err
+	}
+
+	// check for baseline deployment
+	baseline := &appsv1.Deployment{}
+	err = r.client.Get(ctx, types.NamespacedName{
+		Namespace: canaryInstance.Namespace,
+		Name:      canaryConfig.Spec.Baseline,
+	}, baseline)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			baseline, err = r.createBaselineDeployment(ctx, canaryInstance, policy)
+		} else {
+			log.Error(err, "An error occurred when getting Baseline")
+			return err
+		}
+
+		log.Info("Creating baseline deployment")
+		err = r.client.Create(ctx, baseline)
+		if err != nil {
+			log.Error(err, "An error occurred during baseline creation")
+			return err
+		}
 	}
 
 	log.Info("Reconciliation complete")
@@ -171,7 +195,15 @@ func (r *ReconcileDeployment) createCanaryConfig(ctx context.Context, canaryInst
 }
 
 func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) (*appsv1.Deployment, error) {
-	var baseline *appsv1.Deployment
+	baseline := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      canaryInstance.Name + "-baseline",
+			Namespace: canaryInstance.Namespace,
+			Labels: map[string]string{
+				"release": "baseline",
+			},
+		},
+	}
 
 	// get the old deployment to retrieve containers
 	base := &appsv1.Deployment{}
@@ -190,20 +222,17 @@ func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, cana
 
 	switch policy.Spec.BaselineMode {
 	case v1.BaselineModeNew:
-		baseline = canaryInstance.DeepCopy()
+		baseline.Spec = *canaryInstance.Spec.DeepCopy()
 		// copy over previous container configuration
 		baseline.Spec.Template.Spec.Containers = base.Spec.Template.Spec.Containers
 
 	case v1.BaselineModeOld:
-		baseline = base.DeepCopy()
+		baseline.Spec = *base.Spec.DeepCopy()
 	}
 
-	baseline.ObjectMeta.Name += "-baseline"
 	// argh, golang, why you no support pointers
 	singleReplica := int32(1)
 	baseline.Spec.Replicas = &singleReplica
-	// register release to be baseline
-	baseline.ObjectMeta.Labels["release"] = "baseline"
 
 	return baseline, nil
 }
