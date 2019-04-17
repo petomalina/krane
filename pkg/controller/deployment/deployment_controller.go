@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/go-logr/logr"
 	"github.com/petomalina/krane/pkg/apis/krane/v1"
-	"k8s.io/apimachinery/pkg/types"
-
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -91,6 +92,17 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 		reqLogger.Info("Skipping reconcilement, no canary-policy set")
 		return reconcile.Result{}, nil
 	}
+
+	// not ready yet, skip
+	if len(canaryInstance.Status.Conditions) <= 0 {
+		return reconcile.Result{RequeueAfter:time.Second}, nil
+	}
+
+	if canaryInstance.Status.Conditions[0].Type != "Available" || canaryInstance.Status.Conditions[0].Status != "True" {
+		reqLogger.Info("Deployment not ready yet")
+		return reconcile.Result{RequeueAfter:time.Second}, nil
+	}
+
 	// enhance logger for policy and deployment
 	reqLogger = reqLogger.WithValues("policy", canaryPolicyName, "deployment", canaryInstance.Name)
 	reqLogger.Info("Reconciling a Canary Deployment")
@@ -121,6 +133,7 @@ func (r *ReconcileDeployment) reconcileCanaryObject(ctx context.Context, log log
 	if !ok {
 		log.Info("Creating Canary Config")
 		canaryConfig = r.createCanaryConfig(ctx, canaryInstance, policy)
+
 		err := r.client.Create(ctx, canaryConfig)
 		if err != nil {
 			// in case we already found
@@ -134,6 +147,12 @@ func (r *ReconcileDeployment) reconcileCanaryObject(ctx context.Context, log log
 
 		// update the canary instance with the canary-config
 		canaryInstance.ObjectMeta.Labels["krane.sh/canary-config"] = canaryConfig.Name
+		err = controllerutil.SetControllerReference(canaryConfig, canaryInstance, r.scheme)
+		if err != nil {
+			log.Error(err, "Error binding canary config to the canary instance")
+			return err
+		}
+
 		log.Info("Updating canary instance reference to Canary Config")
 		err = r.client.Update(ctx, canaryInstance)
 		if err != nil {
@@ -171,6 +190,12 @@ func (r *ReconcileDeployment) reconcileCanaryObject(ctx context.Context, log log
 			baseline, err = r.createBaselineDeployment(ctx, canaryInstance, policy)
 			if err != nil {
 				log.Error(err, "An error occurred when creating baseline configuration")
+				return err
+			}
+
+			err = controllerutil.SetControllerReference(canaryConfig, baseline, r.scheme)
+			if err != nil {
+				log.Error(err, "Error binding canary config to the baseline instance")
 				return err
 			}
 		} else {

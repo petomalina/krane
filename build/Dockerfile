@@ -1,15 +1,22 @@
-FROM registry.access.redhat.com/ubi7-dev-preview/ubi-minimal:7.6
+FROM golang:1.12
 
-ENV OPERATOR=/usr/local/bin/krane \
-    USER_UID=1001 \
-    USER_NAME=krane
+WORKDIR /app
+RUN mkdir /build
 
-# install operator binary
-COPY build/_output/bin/krane ${OPERATOR}
+COPY . .
 
-COPY build/bin /usr/local/bin
-RUN  /usr/local/bin/user_setup
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /build/server ./cmd/manager
 
-ENTRYPOINT ["/usr/local/bin/entrypoint"]
+FROM alpine:latest
 
-USER ${USER_UID}
+RUN apk update && \
+   apk add ca-certificates && \
+   update-ca-certificates && \
+   rm -rf /var/cache/apk/*
+
+COPY --from=0 /build /app
+WORKDIR /app
+
+EXPOSE 80
+
+ENTRYPOINT ["/app/server"]

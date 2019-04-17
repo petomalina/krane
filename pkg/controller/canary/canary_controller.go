@@ -2,6 +2,7 @@ package canary
 
 import (
 	"context"
+	"time"
 
 	kranev1 "github.com/petomalina/krane/pkg/apis/krane/v1"
 
@@ -59,11 +60,12 @@ type ReconcileCanary struct {
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
 func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+	ctx := context.Background()
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Canary")
 
 	instance := &kranev1.Canary{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	err := r.client.Get(ctx, request.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return reconcile.Result{}, nil
@@ -71,7 +73,17 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return reconcile.Result{}, err
 	}
 
+	ready, err := r.waitForCanaryAndBaseline(ctx, instance)
+	// wait for a couple of seconds before trying again
+	if !ready {
+		return reconcile.Result{RequeueAfter:time.Second*5}, nil
+	}
+
 	reqLogger.Info("Canary Config Reconciliation complete")
 
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileCanary) waitForCanaryAndBaseline(ctx context.Context, cfg *kranev1.Canary) (bool, error) {
+	return true, nil
 }
