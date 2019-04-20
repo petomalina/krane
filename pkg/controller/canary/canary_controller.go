@@ -6,6 +6,7 @@ import (
 
 	kranev1 "github.com/petomalina/krane/pkg/apis/krane/v1"
 
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -76,7 +77,7 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 	ready, err := r.waitForCanaryAndBaseline(ctx, instance)
 	// wait for a couple of seconds before trying again
 	if !ready {
-		return reconcile.Result{RequeueAfter:time.Second*5}, nil
+		return reconcile.Result{RequeueAfter: time.Second * 5}, nil
 	}
 
 	reqLogger.Info("Canary Config Reconciliation complete")
@@ -86,4 +87,13 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 
 func (r *ReconcileCanary) waitForCanaryAndBaseline(ctx context.Context, cfg *kranev1.Canary) (bool, error) {
 	return true, nil
+}
+
+// IsDeploymentReady returns true if the deployment is available
+func IsDeploymentReady(d *appsv1.Deployment) bool {
+	if len(d.Status.Conditions) <= 0 {
+		return false
+	}
+
+	return d.Status.Conditions[0].Type == "Available" && d.Status.Conditions[0].Status == "True"
 }
