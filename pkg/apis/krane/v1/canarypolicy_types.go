@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/petomalina/krane/pkg/apis/networking/v1alpha3"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -27,14 +28,27 @@ type CanaryPolicySpec struct {
 	// DestinationRule is a rule that will be created when a new
 	// canary will be deployed
 	DestinationRule v1alpha3.DestinationRuleSpec
+	// Ports is a list of ports to be be open for the canary when
+	// baseline and canary deployments are created
+	Ports []corev1.ServicePort
+
+	TestSpec  TestSpec  `json:"test,omitempty"`
+	JudgeSpec JudgeSpec `json:"judge,omitempty"`
+}
+
+// +k8s:openapi-gen=true
+type TestSpec struct {
+	Image string `json:"image,omitempty"`
+}
+
+// +k8s:openapi-gen=true
+type JudgeSpec struct {
+	Image string `json:"image,omitempty"`
 }
 
 // CanaryPolicyStatus defines the observed state of CanaryPolicy
 // +k8s:openapi-gen=true
 type CanaryPolicyStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

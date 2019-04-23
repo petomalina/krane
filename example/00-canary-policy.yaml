@@ -9,3 +9,7 @@ spec:
   baselineMode: NEW
   destinationRule:
     host: nginx-service
+  ports:
+  - port: 80
+    name: default
+    protocol: TCP

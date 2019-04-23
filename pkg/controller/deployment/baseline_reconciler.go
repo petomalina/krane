@@ -2,7 +2,6 @@ package deployment
 
 import (
 	"context"
-	"fmt"
 	v1 "github.com/petomalina/krane/pkg/apis/krane/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -20,7 +19,6 @@ func (r *ReconcileDeployment) reconcileBaseline(ctx context.Context, canaryInsta
 		Name:      MakeBaselineName(canaryInstance),
 	}, baseline)
 	if err != nil {
-		fmt.Println(err)
 		if !errors.IsNotFound(err) {
 			return nil, err
 		}
@@ -84,6 +82,10 @@ func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, cana
 	// connect selectors
 	baseline.Spec.Selector.MatchLabels["release"] = "baseline"
 	baseline.Spec.Template.ObjectMeta.Labels["release"] = "baseline"
+
+	// copy over selection labels used by the canary service
+	baseline.Spec.Template.ObjectMeta.Labels[CanaryConfigLabel] = MakeCanaryConfigName(policy, canaryInstance)
+	baseline.Spec.Template.ObjectMeta.Labels[CanaryPolicyLabel] = canaryInstance.Labels[CanaryPolicyLabel]
 
 	err = controllerutil.SetControllerReference(canaryInstance, baseline, r.scheme)
 	if err != nil {

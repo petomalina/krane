@@ -89,7 +89,7 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 	ctx := context.Background()
 	log := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 
-	canaryInstance, err := r.reconcileCanaryDeployment(ctx, request.NamespacedName)
+	canaryInstance, err := r.reconcile(ctx, request.NamespacedName)
 	if err != nil {
 		// special watcher case, we don't want to retry deleted objects
 		if errors.IsNotFound(err) {
@@ -106,13 +106,25 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 
 	log.Info("Reconciling Deployment with policy: ", "policy-name", canaryPolicy.Name)
 
+	// reconcile the current canary instance to add selection metadata
+	err = r.reconcileCanaryDeployment(ctx, canaryInstance, canaryPolicy)
+	if err != nil {
+		return fallbackReconcile(err)
+	}
+
 	// reconcile the canary configuration (2)
 	_, err = r.reconcileCanaryConfig(ctx, canaryInstance, canaryPolicy)
 	if err != nil {
 		return fallbackReconcile(err)
 	}
 
-	// reconcile the baseline (3)
+	// reconcile the canary service (3)
+	_, err = r.reconcileCanaryService(ctx, canaryInstance, canaryPolicy)
+	if err != nil {
+		return fallbackReconcile(err)
+	}
+
+	// reconcile the baseline (4)
 	_, err = r.reconcileBaseline(ctx, canaryInstance, canaryPolicy)
 	if err != nil {
 		return fallbackReconcile(err)
@@ -150,7 +162,7 @@ func (r *ReconcileDeployment) UpdateCanaryConfigName(ctx context.Context, policy
 	return r.client.Update(ctx, c)
 }
 
-func (r *ReconcileDeployment) reconcileCanaryDeployment(ctx context.Context, nn types.NamespacedName) (*appsv1.Deployment, error) {
+func (r *ReconcileDeployment) reconcile(ctx context.Context, nn types.NamespacedName) (*appsv1.Deployment, error) {
 	// Fetch the Deployment d
 	d := &appsv1.Deployment{}
 	err := r.client.Get(ctx, nn, d)
