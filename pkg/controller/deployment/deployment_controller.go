@@ -12,6 +12,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"strings"
+	"time"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
@@ -67,6 +69,18 @@ type ReconcileDeployment struct {
 	scheme *runtime.Scheme
 }
 
+func fallbackReconcile(err error) (reconcile.Result, error) {
+	// we only want to requeue these errors
+	if strings.Contains(err.Error(), "the object has been modified") {
+		err = nil
+	}
+
+	return reconcile.Result{
+		RequeueAfter: time.Second * 3,
+		Requeue:      true,
+	}, err
+}
+
 // Reconcile reads that state of the cluster for a Deployment object and makes changes based on the state read
 // and what is in the Deployment.Spec
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
@@ -75,47 +89,33 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 	ctx := context.Background()
 	log := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 
-	canaryPolicy, err := r.GetCanaryPolicy(ctx, canaryInstance)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
-	// not a Canary Object, skip
-	if canaryPolicy == nil {
-		return reconcile.Result{}, nil
-	}
-
-	log.Info("Reconciling Deployment with policy: ", canaryPolicy.Name)
-
-	canaryConfigName := GetCanaryConfigName(canaryInstance)
-	// canary config not found, we should create it (1)
-	if canaryConfigName == "" {
-		// this will trigger a new reconcile due to the update
-		err := r.UpdateCanaryConfigName(ctx, canaryPolicy, canaryInstance)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-	}
-
-	_, err = r.reconcileCanaryDeployment(ctx, request.NamespacedName)
+	canaryInstance, err := r.reconcileCanaryDeployment(ctx, request.NamespacedName)
 	if err != nil {
 		// special watcher case, we don't want to retry deleted objects
 		if errors.IsNotFound(err) {
 			return reconcile.Result{}, nil
 		}
 
-		return reconcile.Result{}, err
+		return fallbackReconcile(err)
 	}
+
+	canaryPolicy, err := r.GetCanaryPolicy(ctx, canaryInstance)
+	if err != nil {
+		return fallbackReconcile(err)
+	}
+
+	log.Info("Reconciling Deployment with policy: ", "policy-name", canaryPolicy.Name)
 
 	// reconcile the canary configuration (2)
 	_, err = r.reconcileCanaryConfig(ctx, canaryInstance, canaryPolicy)
 	if err != nil {
-		return reconcile.Result{}, err
+		return fallbackReconcile(err)
 	}
 
 	// reconcile the baseline (3)
 	_, err = r.reconcileBaseline(ctx, canaryInstance, canaryPolicy)
 	if err != nil {
-		return reconcile.Result{}, err
+		return fallbackReconcile(err)
 	}
 
 	return reconcile.Result{}, nil
@@ -144,10 +144,10 @@ func MakeBaselineName(c *appsv1.Deployment) string {
 	return c.Name + "-baseline"
 }
 
-func (r *ReconcileDeployment) UpdateCanaryConfigName(ctx context.Context, policy *v1.CanaryPolicy, d *appsv1.Deployment) error {
-	d.ObjectMeta.Labels[CanaryConfigLabel] = policy.Name
+func (r *ReconcileDeployment) UpdateCanaryConfigName(ctx context.Context, policy *v1.CanaryPolicy, c *appsv1.Deployment) error {
+	c.ObjectMeta.Labels[CanaryConfigLabel] = MakeCanaryConfigName(policy, c)
 
-	return r.client.Update(ctx, d)
+	return r.client.Update(ctx, c)
 }
 
 func (r *ReconcileDeployment) reconcileCanaryDeployment(ctx context.Context, nn types.NamespacedName) (*appsv1.Deployment, error) {
@@ -176,13 +176,13 @@ func (r *ReconcileDeployment) reconcileCanaryDeployment(ctx context.Context, nn 
 	return d, err
 }
 
-func (r *ReconcileDeployment) GetCanaryPolicy(ctx context.Context, d *appsv1.Deployment) (*v1.CanaryPolicy, error) {
-	policyName := GetCanaryPolicyName(d)
+func (r *ReconcileDeployment) GetCanaryPolicy(ctx context.Context, c *appsv1.Deployment) (*v1.CanaryPolicy, error) {
+	policyName := GetCanaryPolicyName(c)
 
 	// get the policy
 	canaryPolicy := &v1.CanaryPolicy{}
 	err := r.client.Get(ctx, types.NamespacedName{
-		Namespace: d.Namespace,
+		Namespace: c.Namespace,
 		Name:      policyName,
 	}, canaryPolicy)
 

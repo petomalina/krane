@@ -14,7 +14,7 @@ func (r *ReconcileDeployment) reconcileCanaryConfig(ctx context.Context, canaryI
 
 	err := r.client.Get(ctx, types.NamespacedName{
 		Name:      MakeCanaryConfigName(policy, canaryInstance),
-		Namespace: policy.Name,
+		Namespace: policy.Namespace,
 	}, canaryConfig)
 	if err != nil {
 		if !errors.IsNotFound(err) {
@@ -33,13 +33,13 @@ func (r *ReconcileDeployment) reconcileCanaryConfig(ctx context.Context, canaryI
 func (r *ReconcileDeployment) createCanaryConfig(ctx context.Context, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) *v1.Canary {
 	return &v1.Canary{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      policy.Name + "-" + canaryInstance.Name,
+			Name:      MakeCanaryConfigName(policy, canaryInstance),
 			Namespace: policy.Namespace,
 		},
 		Spec: v1.CanarySpec{
 			Policy:   policy.Name,
 			Canary:   canaryInstance.Name,
-			Baseline: canaryInstance.Name + "-baseline",
+			Baseline: MakeBaselineName(canaryInstance),
 			Base:     policy.Spec.Base,
 		},
 		Status: v1.CanaryStatus{

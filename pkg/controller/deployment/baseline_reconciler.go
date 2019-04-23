@@ -2,11 +2,13 @@ package deployment
 
 import (
 	"context"
+	"fmt"
 	v1 "github.com/petomalina/krane/pkg/apis/krane/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // reconcileBaseline is an idempotent function that creates/reads the baseline instance
@@ -18,6 +20,7 @@ func (r *ReconcileDeployment) reconcileBaseline(ctx context.Context, canaryInsta
 		Name:      MakeBaselineName(canaryInstance),
 	}, baseline)
 	if err != nil {
+		fmt.Println(err)
 		if !errors.IsNotFound(err) {
 			return nil, err
 		}
@@ -39,10 +42,12 @@ func (r *ReconcileDeployment) reconcileBaseline(ctx context.Context, canaryInsta
 func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) (*appsv1.Deployment, error) {
 	baseline := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      canaryInstance.Name + "-baseline",
+			Name:      MakeBaselineName(canaryInstance),
 			Namespace: canaryInstance.Namespace,
 			Labels: map[string]string{
-				"release": "baseline",
+				KraneTierLabel:    "baseline",
+				CanaryConfigLabel: MakeCanaryConfigName(policy, canaryInstance),
+				CanaryPolicyLabel: canaryInstance.Labels[CanaryPolicyLabel],
 			},
 		},
 	}
@@ -79,6 +84,11 @@ func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, cana
 	// connect selectors
 	baseline.Spec.Selector.MatchLabels["release"] = "baseline"
 	baseline.Spec.Template.ObjectMeta.Labels["release"] = "baseline"
+
+	err = controllerutil.SetControllerReference(canaryInstance, baseline, r.scheme)
+	if err != nil {
+		return nil, err
+	}
 
 	return baseline, nil
 }

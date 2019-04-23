@@ -5,7 +5,7 @@ metadata:
   namespace: krane
   labels:
     app: nginx
-    release: stable
+    krane.sh/tier: stable
 spec:
   replicas: 3
   selector:

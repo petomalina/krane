@@ -5,7 +5,7 @@ metadata:
   namespace: krane
   labels:
     app: nginx
-    release: canary
+    krane.sh/tier: canary
     krane.sh/canary-policy: my-app
 spec:
   selector:
