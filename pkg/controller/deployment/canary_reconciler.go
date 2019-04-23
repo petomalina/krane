@@ -7,6 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 func (r *ReconcileDeployment) reconcileCanaryConfig(ctx context.Context, canaryInstance *appsv1.Deployment, policy *v1.CanaryPolicy) (*v1.Canary, error) {
@@ -21,7 +22,18 @@ func (r *ReconcileDeployment) reconcileCanaryConfig(ctx context.Context, canaryI
 			return nil, err
 		}
 
-		err := r.client.Create(ctx, r.createCanaryConfig(ctx, canaryInstance, policy))
+		canaryConfig = r.createCanaryConfig(ctx, canaryInstance, policy)
+		err := r.client.Create(ctx, canaryConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		err = controllerutil.SetControllerReference(canaryConfig, canaryInstance, r.scheme)
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.client.Update(ctx, canaryInstance)
 		if err != nil {
 			return nil, err
 		}
