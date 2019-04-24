@@ -7,8 +7,6 @@ spec:
   base: nginx-deployment
   virtualService: nginx-vs
   baselineMode: NEW
-  destinationRule:
-    host: nginx-service
   ports:
   - port: 80
     name: default

@@ -133,12 +133,6 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 	return reconcile.Result{}, nil
 }
 
-// GetCanaryPolicyName returns the canary policy name if it exists
-func GetCanaryPolicyName(d *appsv1.Deployment) string {
-	// get the canary configuration
-	return d.ObjectMeta.Labels[CanaryPolicyLabel]
-}
-
 // GetCanaryConfigName returns the canary config name if it exists
 func GetCanaryConfigName(d *appsv1.Deployment) string {
 	return d.ObjectMeta.Labels[CanaryConfigLabel]
@@ -186,6 +180,12 @@ func (r *ReconcileDeployment) reconcile(ctx context.Context, nn types.Namespaced
 	}
 
 	return d, err
+}
+
+// GetCanaryPolicyName returns the canary policy name if it exists
+func GetCanaryPolicyName(d *appsv1.Deployment) string {
+	// get the canary configuration
+	return d.ObjectMeta.Labels[CanaryPolicyLabel]
 }
 
 func (r *ReconcileDeployment) GetCanaryPolicy(ctx context.Context, c *appsv1.Deployment) (*v1.CanaryPolicy, error) {

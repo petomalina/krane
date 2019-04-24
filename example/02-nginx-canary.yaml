@@ -11,12 +11,12 @@ spec:
   selector:
     matchLabels:
       app: nginx
-      release: canary
+      krane.sh/tier: canary
   template:
     metadata:
       labels:
         app: nginx
-        release: canary
+        krane.sh/tier: canary
     spec:
       containers:
       - name: nginx

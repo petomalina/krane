@@ -8,7 +8,7 @@ spec:
   subsets:
   - name: stable
     labels:
-      release: stable
+      krane.sh/tier: stable
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
