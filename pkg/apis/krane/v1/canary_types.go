@@ -32,21 +32,36 @@ const (
 	// additional replica of the stable Krane deployment and started the collection
 	// of prometheus metrics
 	CanaryProgress_Canary = "canary"
-	// Judging indicates that the Judge container has started to process metrics
-	// that could not be judged in the Canary phase (e.g. full histograms)
-	CanaryProgress_Judging = "judging"
 	// Reporting indicates that the operator is trying to report results of the test
 	// to the pre-configured destination (e.g. github repository)
 	CanaryProgress_Reporting = "reporting"
-	// Promithing indicates that the current Krane deployment is being reflected into
-	// the stable Krane deployment
-	CanaryProgress_Promoting = "promoting"
 )
+
+type CanaryPhaseStatus string
+
+const (
+	CanaryPhaseStatus_Queued     CanaryPhaseStatus = "queued"
+	CanaryPhaseStatus_InProgress                   = "in_progress"
+	CanaryPhaseStatus_Success                      = "success"
+	CanaryPhaseStatus_Failure                      = "failure"
+)
+
+type CanaryConfigPhase struct {
+	PodName string            `json:"podName,omitempty"`
+	Status  CanaryPhaseStatus `json:"status,omitempty"`
+	Message string            `json:"message,omitempty"`
+}
 
 // CanaryStatus defines the observed state of Canary
 // +k8s:openapi-gen=true
 type CanaryStatus struct {
 	Progress CanaryProgress `json:"progress,omitempty"`
+
+	Initialization CanaryConfigPhase `json:"initialization,omitempty"`
+	Testing        CanaryConfigPhase `json:"testing,omitempty"`
+	Canary         CanaryConfigPhase `json:"canary,omitempty"`
+	Judging        CanaryConfigPhase `json:"judging,omitempty"`
+	Reporting      CanaryConfigPhase `json:"reporting,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

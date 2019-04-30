@@ -28,6 +28,14 @@ func (r *ReconcileDeployment) reconcileCanaryConfig(ctx context.Context, canaryI
 			return nil, err
 		}
 
+		canaryConfig.Status.Progress = v1.CanaryProgress_Initializing
+		err = r.client.Status().Update(ctx, canaryConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if len(canaryConfig.GetOwnerReferences()) == 0 {
 		// set the ownership of the object
 		err = controllerutil.SetControllerReference(canaryConfig, canaryInstance, r.scheme)
 		if err != nil {
@@ -35,12 +43,6 @@ func (r *ReconcileDeployment) reconcileCanaryConfig(ctx context.Context, canaryI
 		}
 
 		err = r.client.Update(ctx, canaryInstance)
-		if err != nil {
-			return nil, err
-		}
-
-		canaryConfig.Status.Progress = v1.CanaryProgress_Initializing
-		err = r.client.Status().Update(ctx, canaryConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -56,10 +58,12 @@ func (r *ReconcileDeployment) createCanaryConfig(ctx context.Context, canaryInst
 			Namespace: policy.Namespace,
 		},
 		Spec: v1.CanarySpec{
-			Policy:   policy.Name,
-			Canary:   canaryInstance.Name,
-			Baseline: MakeBaselineName(canaryInstance),
-			Base:     policy.Spec.Base,
+			Policy: policy.Name,
+			Deployments: v1.CanarySpecDeployments{
+				Canary:   canaryInstance.Name,
+				Baseline: MakeBaselineName(canaryInstance),
+				Base:     policy.Spec.Base,
+			},
 		},
 	}
 }

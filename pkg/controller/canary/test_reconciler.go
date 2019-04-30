@@ -20,6 +20,7 @@ func (r *ReconcileCanary) reconcileTestJob(ctx context.Context, canary *v1.Canar
 	}
 
 	L.Info("Reconciling test step")
+	defer L.Info("Reconciliation complete")
 
 	policy, err := r.GetCanaryPolicy(ctx, canary)
 	if err != nil {
@@ -41,9 +42,54 @@ func (r *ReconcileCanary) reconcileTestJob(ctx context.Context, canary *v1.Canar
 		if err != nil {
 			return nil, err
 		}
+
+		err = r.client.Create(ctx, testJob)
+		if err != nil {
+			return nil, err
+		}
+
+		canary.Status.Testing.Status = v1.CanaryPhaseStatus_InProgress
+		canary.Status.Testing.Message = "Job initialized"
+		canary.Status.Testing.PodName = testJob.Name
+		err = r.client.Status().Update(ctx, canary)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	L.Info("Reconciliation complete")
+	// new values for the test job
+	var newStatus v1.CanaryPhaseStatus
+	var newMessage string
+
+	// update run state if the pod is running
+	var runState *corev1.ContainerStateRunning
+	if runState = GetContainerRunningState(testJob, "testjob"); runState != nil {
+		newStatus = v1.CanaryPhaseStatus_InProgress
+		newMessage = "Job running"
+	}
+
+	// update terminal state if the pod has died
+	var termState *corev1.ContainerStateTerminated
+	if termState = GetContainerTerminalState(testJob, "testjob"); termState != nil {
+		switch termState.ExitCode {
+		case 0:
+			newStatus = v1.CanaryPhaseStatus_Success
+			newMessage = "Job finished successfully"
+		default:
+			newStatus = v1.CanaryPhaseStatus_Failure
+			newMessage = "Job failed"
+		}
+	}
+
+	if newStatus != canary.Status.Testing.Status || canary.Status.Testing.Message != newMessage {
+		canary.Status.Testing.Status = newStatus
+		canary.Status.Testing.Message = newMessage
+
+		err = r.client.Status().Update(ctx, canary)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return testJob, nil
 }
@@ -85,4 +131,29 @@ func (r *ReconcileCanary) CreateTestJob(canary *v1.Canary, policy *v1.CanaryPoli
 	}
 
 	return pod, nil
+}
+
+// IsPodDone returns true if the pod has all containers completed
+func GetContainerTerminalState(job *corev1.Pod, containerName string) *corev1.ContainerStateTerminated {
+	for _, c := range job.Status.ContainerStatuses {
+		// skip the istio-proxy container so we can ignore it
+		if c.Name == containerName && c.State.Terminated != nil {
+			return c.State.Terminated
+		}
+
+	}
+
+	return nil
+}
+
+// GetContainerRunningState returns a running state if the container has that
+func GetContainerRunningState(job *corev1.Pod, containerName string) *corev1.ContainerStateRunning {
+	for _, c := range job.Status.ContainerStatuses {
+		// skip the istio-proxy container so we can ignore it
+		if c.Name == containerName && c.State.Terminated != nil {
+			return c.State.Running
+		}
+	}
+
+	return nil
 }

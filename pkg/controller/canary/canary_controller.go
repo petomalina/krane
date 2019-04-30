@@ -60,7 +60,7 @@ type ReconcileCanary struct {
 
 func fallbackReconcile(err error) (reconcile.Result, error) {
 	// we only want to requeue these errors
-	if strings.Contains(err.Error(), "the object has been modified") {
+	if err != nil && strings.Contains(err.Error(), "the object has been modified") {
 		err = nil
 	}
 
@@ -88,9 +88,9 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return reconcile.Result{}, err
 	}
 
-	ready, err := r.reconcileCanaryAndBaseline(ctx, canaryCfg)
-	if !ready {
-		reqLogger.Info("Canary or Baseline deployments not ready, requequeing")
+	err = r.reconcileCanaryAndBaseline(ctx, canaryCfg)
+	if err != nil {
+		reqLogger.Info("Canary or Baseline deployments errored", "err", err.Error())
 		return fallbackReconcile(err)
 	}
 
@@ -106,6 +106,12 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return fallbackReconcile(err)
 	}
 
+	_, err = r.reconcileJudgeJob(ctx, canaryCfg)
+	if err != nil {
+		reqLogger.Info("Judge reconciliation error", "err", err.Error())
+		return fallbackReconcile(err)
+	}
+
 	_, err = r.reconcileVirtualService(ctx, canaryCfg)
 	if err != nil {
 		reqLogger.Info("VirtualService reconciliation error", "err", err.Error())
@@ -117,47 +123,52 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileCanary) reconcileCanaryAndBaseline(ctx context.Context, cfg *v1.Canary) (bool, error) {
+func (r *ReconcileCanary) reconcileCanaryAndBaseline(ctx context.Context, cfg *v1.Canary) error {
 	canaryDeployment := &appsv1.Deployment{}
 	err := r.client.Get(ctx, types.NamespacedName{
 		Namespace: cfg.Namespace,
-		Name:      cfg.Spec.Canary,
+		Name:      cfg.Spec.Deployments.Canary,
 	}, canaryDeployment)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	baselineDeployment := &appsv1.Deployment{}
 	err = r.client.Get(ctx, types.NamespacedName{
 		Namespace: cfg.Namespace,
-		Name:      cfg.Spec.Baseline,
+		Name:      cfg.Spec.Deployments.Baseline,
 	}, baselineDeployment)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	// not available, don't start the test
 	if canaryDeployment.Status.AvailableReplicas <= 0 || baselineDeployment.Status.AvailableReplicas <= 0 {
-		return false, nil
+		cfg.Status.Initialization.Status = v1.CanaryPhaseStatus_InProgress
+		cfg.Status.Initialization.Message = "Initializing baseline and canary"
+	} else {
+		cfg.Status.Initialization.Status = v1.CanaryPhaseStatus_Success
+		cfg.Status.Initialization.Message = "Initialized baseline and canary deployments"
 	}
 
-	// start the test process
-	cfg.Status.Progress = v1.CanaryProgress_Testing
 	err = r.client.Status().Update(ctx, cfg)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
 
-// IsDeploymentReady returns true if the deployment is available
-func IsDeploymentReady(d *appsv1.Deployment) bool {
-	if len(d.Status.Conditions) <= 0 {
-		return false
+// ReconcilePhaseStatus updates the phases of the canary
+func (r *ReconcileCanary) ReconcilePhaseStatus(ctx context.Context, cfg *v1.Canary) error {
+	switch cfg.Status.Progress {
+	case v1.CanaryProgress_Initializing:
+	case v1.CanaryProgress_Testing:
+	case v1.CanaryProgress_Canary:
+	case v1.CanaryProgress_Reporting:
 	}
 
-	return d.Status.Conditions[0].Type == "Available" && d.Status.Conditions[0].Status == "True"
+	return nil
 }
 
 func (r *ReconcileCanary) GetCanaryPolicy(ctx context.Context, c *v1.Canary) (*v1.CanaryPolicy, error) {

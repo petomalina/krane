@@ -7,10 +7,15 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-var vsLog = log.WithValues("reconciler", "VirtualService")
-
 // reconcileDestinationRules is an idempotent function that creates/reads the baseline instance
 func (r *ReconcileCanary) reconcileVirtualService(ctx context.Context, canary *v1.Canary) (*v1alpha3.DestinationRule, error) {
+	L := log.WithValues("canary", canary.Name, "job", "canary")
+
+	// if not testing, we are just gonna skip
+	if canary.Status.Progress != v1.CanaryProgress_Canary {
+		return nil, nil
+	}
+
 	policy, err := r.GetCanaryPolicy(ctx, canary)
 	if err != nil {
 		return nil, err
@@ -23,6 +28,7 @@ func (r *ReconcileCanary) reconcileVirtualService(ctx context.Context, canary *v
 		Namespace: canary.Namespace,
 	}, vs)
 	if err != nil {
+		L.Info("An error occured when getting desired VirtualService", "err", err.Error())
 		return nil, err
 	}
 

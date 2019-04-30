@@ -15,7 +15,7 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 	L := log.WithValues("canary", canary.Name, "job", "judge")
 
 	// if not testing, we are just gonna skip
-	if canary.Status.Progress != v1.CanaryProgress_Judging {
+	if canary.Status.Progress != v1.CanaryProgress_Testing && canary.Status.Progress != v1.CanaryProgress_Canary {
 		return nil, nil
 	}
 
@@ -27,17 +27,30 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 	}
 
 	// get the test pod so we can handle it
-	testJob := &corev1.Pod{}
+	judgeJob := &corev1.Pod{}
 	err = r.client.Get(ctx, types.NamespacedName{
 		Name:      GetJudgeJobName(canary),
 		Namespace: canary.Namespace,
-	}, testJob)
+	}, judgeJob)
 	if err != nil {
 		if !errors.IsNotFound(err) {
 			return nil, err
 		}
 
-		testJob, err = r.CreateJudgeJob(canary, policy)
+		judgeJob, err = r.CreateJudgeJob(canary, policy)
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.client.Create(ctx, judgeJob)
+		if err != nil {
+			return nil, err
+		}
+
+		canary.Status.Judging.Status = v1.CanaryPhaseStatus_InProgress
+		canary.Status.Judging.Message = "Job initialized"
+		canary.Status.Judging.PodName = judgeJob.Name
+		err = r.client.Status().Update(ctx, canary)
 		if err != nil {
 			return nil, err
 		}
@@ -45,7 +58,7 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 
 	L.Info("Reconciliation complete")
 
-	return testJob, nil
+	return judgeJob, nil
 }
 
 func GetJudgeJobName(c *v1.Canary) string {
@@ -72,6 +85,18 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 							// canary services have the same name as canaries themselves
 							Name:  "KRANE_TARGET",
 							Value: canary.Name,
+						},
+						{
+							Name:  "KRANE_CANARY",
+							Value: canary.Spec.Deployments.Canary,
+						},
+						{
+							Name:  "KRANE_BASELINE",
+							Value: canary.Spec.Deployments.Baseline,
+						},
+						{
+							Name:  "KRANE_NAMESPACE",
+							Value: canary.Namespace,
 						},
 					},
 				},

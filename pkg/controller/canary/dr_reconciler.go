@@ -61,7 +61,7 @@ func (r *ReconcileCanary) createBaselineDestinationRule(ctx context.Context, can
 			},
 		},
 	}
-	defaultDr.Host = policy.Name + "-" + canary.Spec.Canary
+	defaultDr.Host = policy.Name + "-" + canary.Spec.Deployments.Canary
 
 	dr := &v1alpha3.DestinationRule{
 		ObjectMeta: metav1.ObjectMeta{
