@@ -130,6 +130,8 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 		return fallbackReconcile(err)
 	}
 
+	log.Info("Deployment reconciliation complete: ", "policy-name", canaryPolicy.Name)
+
 	return reconcile.Result{}, nil
 }
 
@@ -197,11 +199,6 @@ func (r *ReconcileDeployment) GetCanaryPolicy(ctx context.Context, c *appsv1.Dep
 		Namespace: c.Namespace,
 		Name:      policyName,
 	}, canaryPolicy)
-
-	// ignore it if the object was deleted
-	if errors.IsNotFound(err) {
-		return nil, nil
-	}
 
 	return canaryPolicy, err
 }

@@ -11,7 +11,7 @@ import (
 // +k8s:openapi-gen=true
 type DestinationRuleSpec struct {
 	Host string `json:"host,omitempty"`
-	//TrafficPolicy map[string]interface{} `json:"traffic_policy,omitempty"`
+	//TrafficPolicy Anything  `json:"traffic_policy,omitempty"`
 	Subsets []*Subset `json:"subsets,omitempty"`
 }
 
@@ -21,15 +21,13 @@ type Subset struct {
 
 	Labels map[string]string `json:"labels,omitempty"`
 
-	//TrafficPolicy map[string]interface{} `json:"traffic_policy,omitempty"`
+	//TrafficPolicy Anything `json:"traffic_policy,omitempty"`
 }
 
 // DestinationRuleStatus defines the observed state of DestinationRule
 // +k8s:openapi-gen=true
 type DestinationRuleStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	//Anything
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

@@ -79,8 +79,8 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Canary")
 
-	instance := &v1.Canary{}
-	err := r.client.Get(ctx, request.NamespacedName, instance)
+	canaryCfg := &v1.Canary{}
+	err := r.client.Get(ctx, request.NamespacedName, canaryCfg)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return reconcile.Result{}, nil
@@ -88,17 +88,17 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return reconcile.Result{}, err
 	}
 
-	ready, err := r.waitForCanaryAndBaseline(ctx, instance)
+	ready, err := r.waitForCanaryAndBaseline(ctx, canaryCfg)
 	if !ready {
 		return reconcile.Result{RequeueAfter: time.Second * 5}, nil
 	}
 
-	_, err = r.reconcileDestinationRules(ctx, instance)
+	_, err = r.reconcileDestinationRules(ctx, canaryCfg)
 	if err != nil {
 		return fallbackReconcile(err)
 	}
 
-	_, err = r.reconcileVirtualService(ctx, instance)
+	_, err = r.reconcileVirtualService(ctx, canaryCfg)
 	if err != nil {
 		return fallbackReconcile(err)
 	}

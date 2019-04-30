@@ -31,6 +31,7 @@ metadata:
   namespace: krane
   labels:
     app: nginx
+    krane.sh/tier: stable
 spec:
   ports:
     - port: 80
@@ -38,3 +39,4 @@ spec:
       name: http
   selector:
     app: nginx
+    krane.sh/tier: stable
