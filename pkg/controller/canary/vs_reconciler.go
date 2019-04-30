@@ -7,6 +7,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
+var vsLog = log.WithValues("reconciler", "VirtualService")
+
 // reconcileDestinationRules is an idempotent function that creates/reads the baseline instance
 func (r *ReconcileCanary) reconcileVirtualService(ctx context.Context, canary *v1.Canary) (*v1alpha3.DestinationRule, error) {
 	policy, err := r.GetCanaryPolicy(ctx, canary)

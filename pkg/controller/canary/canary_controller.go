@@ -88,18 +88,27 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return reconcile.Result{}, err
 	}
 
-	ready, err := r.waitForCanaryAndBaseline(ctx, canaryCfg)
+	ready, err := r.reconcileCanaryAndBaseline(ctx, canaryCfg)
 	if !ready {
-		return reconcile.Result{RequeueAfter: time.Second * 5}, nil
+		reqLogger.Info("Canary or Baseline deployments not ready, requequeing")
+		return fallbackReconcile(err)
 	}
 
-	_, err = r.reconcileDestinationRules(ctx, canaryCfg)
+	//_, err = r.reconcileDestinationRules(ctx, canaryCfg)
+	//if err != nil {
+	//	reqLogger.Info("Destination rule reconciliation error", "err", err.Error())
+	//	return fallbackReconcile(err)
+	//}
+
+	_, err = r.reconcileTestJob(ctx, canaryCfg)
 	if err != nil {
+		reqLogger.Info("TestJob reconciliation error", "err", err.Error())
 		return fallbackReconcile(err)
 	}
 
 	_, err = r.reconcileVirtualService(ctx, canaryCfg)
 	if err != nil {
+		reqLogger.Info("VirtualService reconciliation error", "err", err.Error())
 		return fallbackReconcile(err)
 	}
 
@@ -108,7 +117,37 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileCanary) waitForCanaryAndBaseline(ctx context.Context, cfg *v1.Canary) (bool, error) {
+func (r *ReconcileCanary) reconcileCanaryAndBaseline(ctx context.Context, cfg *v1.Canary) (bool, error) {
+	canaryDeployment := &appsv1.Deployment{}
+	err := r.client.Get(ctx, types.NamespacedName{
+		Namespace: cfg.Namespace,
+		Name:      cfg.Spec.Canary,
+	}, canaryDeployment)
+	if err != nil {
+		return false, err
+	}
+
+	baselineDeployment := &appsv1.Deployment{}
+	err = r.client.Get(ctx, types.NamespacedName{
+		Namespace: cfg.Namespace,
+		Name:      cfg.Spec.Baseline,
+	}, baselineDeployment)
+	if err != nil {
+		return false, err
+	}
+
+	// not available, don't start the test
+	if canaryDeployment.Status.AvailableReplicas <= 0 || baselineDeployment.Status.AvailableReplicas <= 0 {
+		return false, nil
+	}
+
+	// start the test process
+	cfg.Status.Progress = v1.CanaryProgress_Testing
+	err = r.client.Status().Update(ctx, cfg)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 

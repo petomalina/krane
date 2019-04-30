@@ -38,12 +38,14 @@ type CanaryPolicySpec struct {
 
 // +k8s:openapi-gen=true
 type TestSpec struct {
-	Image string `json:"image,omitempty"`
+	Image string   `json:"image,omitempty"`
+	Cmd   []string `json:"cmd,omitempty"`
 }
 
 // +k8s:openapi-gen=true
 type JudgeSpec struct {
-	Image string `json:"image,omitempty"`
+	Image string   `json:"image,omitempty"`
+	Cmd   []string `json:"cmd,omitempty"`
 }
 
 // CanaryPolicyStatus defines the observed state of CanaryPolicy

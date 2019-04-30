@@ -11,3 +11,7 @@ spec:
   - port: 80
     name: default
     protocol: TCP
+  test:
+    image: busybox
+  judge:
+    image: busybox

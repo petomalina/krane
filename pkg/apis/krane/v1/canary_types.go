@@ -4,14 +4,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+type CanarySpecDeployments struct {
+	Canary   string `json:"canary,omitempty"`
+	Baseline string `json:"baseline,omitempty"`
+	Base     string `json:"base,omitempty"`
+}
+
 // CanarySpec defines the desired state of Canary
 // +k8s:openapi-gen=true
 type CanarySpec struct {
 	Policy string `json:"policy,omitempty"`
 
-	Canary   string `json:"canary,omitempty"`
-	Baseline string `json:"baseline,omitempty"`
-	Base     string `json:"base,omitempty"`
+	Deployments CanarySpecDeployments `json:"deployments,omitempty"`
 }
 
 // CanaryProgress is a progress of the Krane object during its deployment
@@ -23,7 +27,7 @@ const (
 	CanaryProgress_Initializing CanaryProgress = "initializing"
 	// Test indicates that the service is being tested using the pretest
 	// container to make sure the container can be routed
-	CanaryProgress_Test = "pretest"
+	CanaryProgress_Testing = "testing"
 	// Canary indicates that the operator has split the traffic, created an
 	// additional replica of the stable Krane deployment and started the collection
 	// of prometheus metrics
@@ -42,7 +46,7 @@ const (
 // CanaryStatus defines the observed state of Canary
 // +k8s:openapi-gen=true
 type CanaryStatus struct {
-	Progress CanaryProgress `json:"status,omitempty"`
+	Progress CanaryProgress `json:"progress,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

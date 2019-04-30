@@ -38,6 +38,12 @@ func (r *ReconcileDeployment) reconcileCanaryConfig(ctx context.Context, canaryI
 		if err != nil {
 			return nil, err
 		}
+
+		canaryConfig.Status.Progress = v1.CanaryProgress_Initializing
+		err = r.client.Status().Update(ctx, canaryConfig)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return canaryConfig, nil
@@ -54,9 +60,6 @@ func (r *ReconcileDeployment) createCanaryConfig(ctx context.Context, canaryInst
 			Canary:   canaryInstance.Name,
 			Baseline: MakeBaselineName(canaryInstance),
 			Base:     policy.Spec.Base,
-		},
-		Status: v1.CanaryStatus{
-			Progress: v1.CanaryProgress_Initializing,
 		},
 	}
 }
