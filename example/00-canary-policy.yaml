@@ -4,8 +4,8 @@ metadata:
   name: my-app
   namespace: krane
 spec:
-  base: nginx-deployment
-  virtualService: nginx-vs
+  base: aggregator-deployment
+  virtualService: aggregator-vs
   baselineMode: NEW
   ports:
   - port: 80
