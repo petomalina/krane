@@ -21,8 +21,8 @@ func main() {
 		_, err := http.Post("http://"+target+"/observe?metric=hits&value=1", "", nil)
 		if err != nil {
 			// we want to wait for the istio proxy to start before sending any traffic
-			if retries == 0 {
-				os.Exit(0)
+			if retries <= 0 {
+				os.Exit(1)
 			}
 
 			retries--

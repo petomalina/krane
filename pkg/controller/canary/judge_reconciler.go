@@ -15,7 +15,7 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 	L := log.WithValues("canary", canary.Name, "job", "judge")
 
 	// if not testing, we are just gonna skip
-	if canary.Status.Progress != v1.CanaryProgress_Canary && canary.Status.Progress != v1.CanaryProgress_Canary {
+	if canary.Status.Progress != v1.CanaryProgress_Testing && canary.Status.Progress != v1.CanaryProgress_Canary {
 		return nil, nil
 	}
 
@@ -80,9 +80,9 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 		}
 	}
 
-	if newStatus != canary.Status.Canary.Status || canary.Status.Canary.Message != newMessage {
-		canary.Status.Canary.Status = newStatus
-		canary.Status.Canary.Message = newMessage
+	if newStatus != canary.Status.Judging.Status || canary.Status.Judging.Message != newMessage {
+		canary.Status.Judging.Status = newStatus
+		canary.Status.Judging.Message = newMessage
 
 		err = r.client.Status().Update(ctx, canary)
 		if err != nil {

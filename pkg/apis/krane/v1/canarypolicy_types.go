@@ -22,6 +22,9 @@ type CanaryPolicySpec struct {
 	// VirtualService is a name of bindable virtualservice that
 	// will be used for traffic splitting
 	VirtualService string `json:"virtualService,omitempty"`
+	// Service is a name of the service to be weight-routed during
+	// the canary phase
+	Service string `json:"service,omitempty"`
 	// Mode is used to determine if baseline uses original
 	// or canary configuration
 	BaselineMode BaselineMode `json:"baselineMode,omitempty"`

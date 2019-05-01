@@ -6,6 +6,7 @@ metadata:
 spec:
   base: aggregator-deployment
   virtualService: aggregator-vs
+  service: aggregator-svc
   baselineMode: NEW
   ports:
   - port: 80
@@ -14,7 +15,7 @@ spec:
   test:
     image: gcr.io/petomalina/aggregator-testjob:v1
     boundary:
-      requests: 600
+      requests: 60
   judge:
     image: busybox
     diffMetrics:
