@@ -9,6 +9,7 @@ import (
 	"github.com/petomalina/krane/pkg/apis/krane/v1"
 
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -43,6 +44,14 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	// Watch for changes to primary resource Canary
 	err = c.Watch(&source.Kind{Type: &v1.Canary{}}, &handler.EnqueueRequestForObject{})
+	if err != nil {
+		return err
+	}
+
+	err = c.Watch(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestForOwner{
+		OwnerType:    &v1.Canary{},
+		IsController: true,
+	})
 	if err != nil {
 		return err
 	}
@@ -94,12 +103,6 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return fallbackReconcile(err)
 	}
 
-	//_, err = r.reconcileDestinationRules(ctx, canaryCfg)
-	//if err != nil {
-	//	reqLogger.Info("Destination rule reconciliation error", "err", err.Error())
-	//	return fallbackReconcile(err)
-	//}
-
 	_, err = r.reconcileTestJob(ctx, canaryCfg)
 	if err != nil {
 		reqLogger.Info("TestJob reconciliation error", "err", err.Error())
@@ -115,6 +118,11 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 	_, err = r.reconcileVirtualService(ctx, canaryCfg)
 	if err != nil {
 		reqLogger.Info("VirtualService reconciliation error", "err", err.Error())
+		return fallbackReconcile(err)
+	}
+
+	err = r.ReconcilePhaseStatus(ctx, canaryCfg)
+	if err != nil {
 		return fallbackReconcile(err)
 	}
 
@@ -161,11 +169,30 @@ func (r *ReconcileCanary) reconcileCanaryAndBaseline(ctx context.Context, cfg *v
 
 // ReconcilePhaseStatus updates the phases of the canary
 func (r *ReconcileCanary) ReconcilePhaseStatus(ctx context.Context, cfg *v1.Canary) error {
+	newStage := cfg.Status.Progress
+
 	switch cfg.Status.Progress {
 	case v1.CanaryProgress_Initializing:
+		if cfg.Status.Initialization.Status == v1.CanaryPhaseStatus_Success {
+			newStage = v1.CanaryProgress_Testing
+		}
 	case v1.CanaryProgress_Testing:
+		if cfg.Status.Testing.Status == v1.CanaryPhaseStatus_Success {
+			newStage = v1.CanaryProgress_Canary
+		}
 	case v1.CanaryProgress_Canary:
+		if cfg.Status.Canary.Status == v1.CanaryPhaseStatus_Success {
+			newStage = v1.CanaryProgress_Reporting
+		}
 	case v1.CanaryProgress_Reporting:
+		if cfg.Status.Reporting.Status == v1.CanaryPhaseStatus_Success {
+			newStage = v1.CanaryProgress_Cleanup
+		}
+	}
+
+	if cfg.Status.Progress != newStage {
+		cfg.Status.Progress = newStage
+		return r.client.Status().Update(ctx, cfg)
 	}
 
 	return nil

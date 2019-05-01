@@ -35,6 +35,9 @@ const (
 	// Reporting indicates that the operator is trying to report results of the test
 	// to the pre-configured destination (e.g. github repository)
 	CanaryProgress_Reporting = "reporting"
+	// Cleanup progress indicates that the canary is now being cleaned up with all
+	// created pods and resources
+	CanaryProgress_Cleanup = "cleanup"
 )
 
 type CanaryPhaseStatus string
@@ -62,6 +65,7 @@ type CanaryStatus struct {
 	Canary         CanaryConfigPhase `json:"canary,omitempty"`
 	Judging        CanaryConfigPhase `json:"judging,omitempty"`
 	Reporting      CanaryConfigPhase `json:"reporting,omitempty"`
+	Cleanup        CanaryConfigPhase `json:"cleanup,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
