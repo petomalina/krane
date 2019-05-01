@@ -88,6 +88,7 @@ tracing:
 #
 kiali:
   enabled: true
+  createDemoSecret: true
 
 #
 # Istio CNI plugin enabled
