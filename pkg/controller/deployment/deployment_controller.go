@@ -106,26 +106,26 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 
 	log.Info("Reconciling Deployment with policy: ", "policy-name", canaryPolicy.Name)
 
-	// reconcile the current canary instance to add selection metadata
+	// reconcile the current canary instance to add selection metadata (1)
 	err = r.reconcileCanaryDeployment(ctx, canaryInstance, canaryPolicy)
 	if err != nil {
 		return fallbackReconcile(err)
 	}
 
-	// reconcile the canary configuration (2)
-	_, err = r.reconcileCanaryConfig(ctx, canaryInstance, canaryPolicy)
-	if err != nil {
-		return fallbackReconcile(err)
-	}
-
-	// reconcile the canary service (3)
+	// reconcile the canary service (2)
 	_, err = r.reconcileCanaryService(ctx, canaryInstance, canaryPolicy)
 	if err != nil {
 		return fallbackReconcile(err)
 	}
 
-	// reconcile the baseline (4)
+	// reconcile the baseline (3)
 	_, err = r.reconcileBaseline(ctx, canaryInstance, canaryPolicy)
+	if err != nil {
+		return fallbackReconcile(err)
+	}
+
+	// reconcile the canary configuration (4)
+	_, err = r.reconcileCanaryConfig(ctx, canaryInstance, canaryPolicy)
 	if err != nil {
 		return fallbackReconcile(err)
 	}
