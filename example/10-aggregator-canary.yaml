@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
       - name: aggregator
-        image: gcr.io/petomalina/aggregator:v1
+        image: gcr.io/petomalina/aggregator:v2
         ports:
         - containerPort: 80

@@ -23,6 +23,7 @@ spec:
           image: gcr.io/petomalina/aggregator:v1
           ports:
             - containerPort: 80
+              name: http
 ---
 apiVersion: v1
 kind: Service

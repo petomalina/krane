@@ -12,7 +12,7 @@ spec:
     name: default
     protocol: TCP
   test:
-    image: gcr.io/petomalina/aggregator-test:latest
+    image: gcr.io/petomalina/aggregator-testjob:v1
     boundary:
       requests: 10000
   judge:

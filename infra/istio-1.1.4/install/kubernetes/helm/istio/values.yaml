@@ -199,7 +199,7 @@ global:
     # example: includeIPRanges: "172.30.0.0/16,172.20.0.0/16"
     # would only capture egress traffic on those two IP Ranges, all other outbound traffic would
     # be allowed by the sidecar
-    includeIPRanges: "10.12.0.0/14"
+    includeIPRanges: "*"
     excludeIPRanges: ""
 
     # pod internal interfaces

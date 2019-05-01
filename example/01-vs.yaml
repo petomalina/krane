@@ -28,3 +28,16 @@ spec:
       - destination:
           host: aggregator-svc
           subset: stable
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: storage-vs
+  namespace: krane
+spec:
+  hosts:
+    - storage-svc
+  http:
+    - route:
+      - destination:
+          host: storage-svc
