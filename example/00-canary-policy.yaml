@@ -20,3 +20,4 @@ spec:
     diffMetrics:
       - metric: container_cpu_system_seconds_total
         container: aggregator
+        diff: 0.05

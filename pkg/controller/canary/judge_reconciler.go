@@ -87,6 +87,10 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 							Value: canary.Name,
 						},
 						{
+							Name:  "KRANE_PROMETHEUS",
+							Value: "prometheus.istio-system.svc.cluster.local",
+						},
+						{
 							Name:  "KRANE_CANARY",
 							Value: canary.Spec.Deployments.Canary,
 						},
@@ -97,6 +101,14 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 						{
 							Name:  "KRANE_NAMESPACE",
 							Value: canary.Namespace,
+						},
+						{
+							Name:  "KRANE_DIFF_METRICS",
+							Value: "",
+						},
+						{
+							Name:  "KRANE_THRESHOLD_METRICS",
+							Value: "",
 						},
 					},
 				},

@@ -149,7 +149,7 @@ func MakeCanaryConfigName(p *v1.CanaryPolicy, c *appsv1.Deployment) string {
 
 // MakeBaselinename returns the name of the baseline object
 func MakeBaselineName(c *appsv1.Deployment) string {
-	return c.Name + "-baseline"
+	return strings.TrimSuffix(c.Name, "-canary") + "-baseline"
 }
 
 func (r *ReconcileDeployment) UpdateCanaryConfigName(ctx context.Context, policy *v1.CanaryPolicy, c *appsv1.Deployment) error {

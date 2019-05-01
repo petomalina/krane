@@ -55,8 +55,9 @@ type ThresholdMetric struct {
 }
 
 type DiffMetric struct {
-	Metric    string `json:"metric,omitempty"`
-	Container string `json:"container,omitempty"`
+	Metric    string  `json:"metric,omitempty"`
+	Container string  `json:"container,omitempty"`
+	Diff      float64 `json:"diff,omitempty"`
 }
 
 // +k8s:openapi-gen=true
