@@ -1,10 +1,10 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: nginx-dr
+  name: aggregator-dr
   namespace: krane
 spec:
-  host: nginx-service
+  host: aggregator-svc
   subsets:
   - name: stable
     labels:
@@ -13,20 +13,18 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: nginx-vs
+  name: aggregator-vs
   namespace: krane
 spec:
   hosts:
-  - api.dashly-dev.com
+  - '*'
   gateways:
   - krane-gw
   http:
     - match:
       - uri:
-          prefix: "/kranetest"
-      rewrite:
-        uri: "/"
+          prefix: "/"
       route:
       - destination:
-          host: nginx-service
+          host: aggregator-svc
           subset: stable

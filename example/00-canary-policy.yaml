@@ -12,6 +12,8 @@ spec:
     name: default
     protocol: TCP
   test:
-    image: busybox
+    image: gcr.io/petomalina/aggregator-test:latest
+    boundary:
+      requests: 10000
   judge:
     image: busybox

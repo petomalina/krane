@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-deployment
+  namespace: krane
+  labels:
+    app: storage
+    krane.sh/tier: stable
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage
+      krane.sh/tier: stable
+  template:
+    metadata:
+      labels:
+        app: storage
+        krane.sh/tier: stable
+    spec:
+      containers:
+        - name: storage
+          image: gcr.io/petomalina/storage:v1
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storage-svc
+  namespace: krane
+  labels:
+    app: storage
+    krane.sh/tier: stable
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: storage
+    krane.sh/tier: stable

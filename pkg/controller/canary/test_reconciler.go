@@ -8,6 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"strconv"
 )
 
 // reconcileDestinationRules is an idempotent function that creates/reads the baseline instance
@@ -101,6 +102,21 @@ func GetTestJobname(c *v1.Canary) string {
 func (r *ReconcileCanary) CreateTestJob(canary *v1.Canary, policy *v1.CanaryPolicy) (*corev1.Pod, error) {
 	labels := map[string]string{}
 
+	envs := []corev1.EnvVar{}
+	if policy.Spec.TestSpec.Boundary.Requests != 0 {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "KRANE_BOUNDARY_REQUESTS",
+			Value: strconv.Itoa(policy.Spec.TestSpec.Boundary.Requests),
+		})
+	}
+
+	if policy.Spec.TestSpec.Boundary.Time != "" {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "KRANE_BOUNDARY_TIME",
+			Value: policy.Spec.TestSpec.Boundary.Time,
+		})
+	}
+
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GetTestJobname(canary),
@@ -113,13 +129,13 @@ func (r *ReconcileCanary) CreateTestJob(canary *v1.Canary, policy *v1.CanaryPoli
 					Name:    "testjob",
 					Image:   policy.Spec.TestSpec.Image,
 					Command: policy.Spec.TestSpec.Cmd,
-					Env: []corev1.EnvVar{
+					Env: append([]corev1.EnvVar{
 						{
 							// canary services have the same name as canaries themselves
 							Name:  "KRANE_TARGET",
 							Value: canary.Name,
 						},
-					},
+					}, envs...),
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,

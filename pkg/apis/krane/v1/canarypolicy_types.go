@@ -36,10 +36,17 @@ type CanaryPolicySpec struct {
 	JudgeSpec JudgeSpec `json:"judge,omitempty"`
 }
 
+type TestSpecBoundary struct {
+	Time     string `json:"time,omitempty"`
+	Requests int    `json:"requests.omitempty"`
+}
+
 // +k8s:openapi-gen=true
 type TestSpec struct {
 	Image string   `json:"image,omitempty"`
 	Cmd   []string `json:"cmd,omitempty"`
+
+	Boundary TestSpecBoundary `json:"boundary"`
 }
 
 // +k8s:openapi-gen=true

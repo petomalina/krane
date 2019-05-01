@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment-canary
+  name: aggregator-deployment-canary
   namespace: krane
   labels:
-    app: nginx
+    app: aggregator
     krane.sh/tier: canary
     krane.sh/canary-policy: my-app
 spec:
   selector:
     matchLabels:
-      app: nginx
+      app: aggregator
       krane.sh/tier: canary
   template:
     metadata:
       labels:
-        app: nginx
+        app: aggregator
         krane.sh/tier: canary
     spec:
       containers:
-      - name: nginx
-        image: tutum/hello-world
+      - name: aggregator
+        image: gcr.io/petomalina/aggregator:v1
         ports:
         - containerPort: 80
