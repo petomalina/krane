@@ -15,7 +15,7 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 	L := log.WithValues("canary", canary.Name, "job", "judge")
 
 	// if not testing, we are just gonna skip
-	if canary.Status.Progress != v1.CanaryProgress_Testing && canary.Status.Progress != v1.CanaryProgress_Canary {
+	if canary.Status.Progress != v1.CanaryProgress_Canary && canary.Status.Progress != v1.CanaryProgress_Canary {
 		return nil, nil
 	}
 
@@ -50,6 +50,40 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 		canary.Status.Judging.Status = v1.CanaryPhaseStatus_InProgress
 		canary.Status.Judging.Message = "Job initialized"
 		canary.Status.Judging.PodName = judgeJob.Name
+		err = r.client.Status().Update(ctx, canary)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// new values for the test job
+	var newStatus v1.CanaryPhaseStatus
+	var newMessage string
+
+	// update run state if the pod is running
+	var runState *corev1.ContainerStateRunning
+	if runState = GetContainerRunningState(judgeJob, "judge"); runState != nil {
+		newStatus = v1.CanaryPhaseStatus_InProgress
+		newMessage = "Job running"
+	}
+
+	// update terminal state if the pod has died
+	var termState *corev1.ContainerStateTerminated
+	if termState = GetContainerTerminalState(judgeJob, "judge"); termState != nil {
+		switch termState.ExitCode {
+		case 0:
+			newStatus = v1.CanaryPhaseStatus_Success
+			newMessage = "Job finished successfully"
+		default:
+			newStatus = v1.CanaryPhaseStatus_Failure
+			newMessage = "Job failed"
+		}
+	}
+
+	if newStatus != canary.Status.Canary.Status || canary.Status.Canary.Message != newMessage {
+		canary.Status.Canary.Status = newStatus
+		canary.Status.Canary.Message = newMessage
+
 		err = r.client.Status().Update(ctx, canary)
 		if err != nil {
 			return nil, err
