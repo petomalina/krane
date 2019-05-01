@@ -5,17 +5,20 @@ metadata:
   namespace: krane
   labels:
     app: aggregator
+    version: stable
     krane.sh/tier: stable
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: aggregator
+      version: stable
       krane.sh/tier: stable
   template:
     metadata:
       labels:
         app: aggregator
+        version: stable
         krane.sh/tier: stable
     spec:
       containers:
@@ -32,6 +35,7 @@ metadata:
   namespace: krane
   labels:
     app: aggregator
+    version: stable
     krane.sh/tier: stable
 spec:
   ports:
@@ -40,4 +44,5 @@ spec:
       name: http
   selector:
     app: aggregator
+    version: stable
     krane.sh/tier: stable

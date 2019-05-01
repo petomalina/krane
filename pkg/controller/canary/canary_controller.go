@@ -103,6 +103,11 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return fallbackReconcile(err)
 	}
 
+	// wait for the deployments to be ready
+	if canaryCfg.Status.Initialization.Status == v1.CanaryPhaseStatus_InProgress {
+		return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
+	}
+
 	_, err = r.reconcileTestJob(ctx, canaryCfg)
 	if err != nil {
 		reqLogger.Info("TestJob reconciliation error", "err", err.Error())
@@ -128,7 +133,7 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 
 	reqLogger.Info("Canary Config Reconciliation complete")
 
-	return reconcile.Result{}, nil
+	return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
 }
 
 func (r *ReconcileCanary) reconcileCanaryAndBaseline(ctx context.Context, cfg *v1.Canary) error {
@@ -175,23 +180,33 @@ func (r *ReconcileCanary) ReconcilePhaseStatus(ctx context.Context, cfg *v1.Cana
 	case v1.CanaryProgress_Initializing:
 		if cfg.Status.Initialization.Status == v1.CanaryPhaseStatus_Success {
 			newStage = v1.CanaryProgress_Testing
+			cfg.Status.Testing.Status = v1.CanaryPhaseStatus_Queued
 		}
 	case v1.CanaryProgress_Testing:
 		if cfg.Status.Testing.Status == v1.CanaryPhaseStatus_Success {
 			newStage = v1.CanaryProgress_Canary
+			cfg.Status.Canary.Status = v1.CanaryPhaseStatus_Queued
 		}
 	case v1.CanaryProgress_Canary:
 		if cfg.Status.Canary.Status == v1.CanaryPhaseStatus_Success {
 			newStage = v1.CanaryProgress_Reporting
+			cfg.Status.Reporting.Status = v1.CanaryPhaseStatus_Queued
 		}
 	case v1.CanaryProgress_Reporting:
 		if cfg.Status.Reporting.Status == v1.CanaryPhaseStatus_Success {
 			newStage = v1.CanaryProgress_Cleanup
+			cfg.Status.Cleanup.Status = v1.CanaryPhaseStatus_Queued
 		}
 	}
 
 	if cfg.Status.Progress != newStage {
 		cfg.Status.Progress = newStage
+		return r.client.Status().Update(ctx, cfg)
+	}
+
+	// reset the progress if it gets lost (TODO)
+	if cfg.Status.Progress == "" {
+		cfg.Status.Progress = v1.CanaryProgress_Initializing
 		return r.client.Status().Update(ctx, cfg)
 	}
 

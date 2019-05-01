@@ -14,6 +14,9 @@ spec:
   test:
     image: gcr.io/petomalina/aggregator-testjob:v1
     boundary:
-      requests: 10000
+      requests: 600
   judge:
     image: busybox
+    diffMetrics:
+      - metric: container_cpu_system_seconds_total
+        container: aggregator

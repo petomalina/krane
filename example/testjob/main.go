@@ -15,11 +15,19 @@ func main() {
 
 	reqs := 0
 	start := time.Now()
+
+	retries := 100
 	for {
 		_, err := http.Post("http://"+target+"/observe?metric=hits&value=1", "", nil)
 		if err != nil {
+			// we want to wait for the istio proxy to start before sending any traffic
+			if retries == 0 {
+				os.Exit(0)
+			}
+
+			retries--
 			fmt.Println("WARN: an error occured when hitting the service", err)
-			os.Exit(1)
+			time.Sleep(time.Millisecond * 500)
 		}
 
 		diff := time.Now().Sub(start)
@@ -34,6 +42,8 @@ func main() {
 		if timeLimit != 0 && timeLimit >= diff {
 			break
 		}
+
+		time.Sleep(time.Millisecond * 200)
 	}
 
 	fmt.Println("Total Requests: ", reqs)

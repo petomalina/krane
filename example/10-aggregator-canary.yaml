@@ -5,21 +5,24 @@ metadata:
   namespace: krane
   labels:
     app: aggregator
+    version: canary
     krane.sh/tier: canary
     krane.sh/canary-policy: my-app
 spec:
   selector:
     matchLabels:
       app: aggregator
+      version: canary
       krane.sh/tier: canary
   template:
     metadata:
       labels:
         app: aggregator
+        version: canary
         krane.sh/tier: canary
     spec:
       containers:
       - name: aggregator
-        image: gcr.io/petomalina/aggregator:v2
+        image: gcr.io/petomalina/aggregator:v4
         ports:
         - containerPort: 80

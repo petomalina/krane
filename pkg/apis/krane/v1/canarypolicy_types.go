@@ -49,10 +49,23 @@ type TestSpec struct {
 	Boundary TestSpecBoundary `json:"boundary"`
 }
 
+type ThresholdMetric struct {
+	Metric string `json:"metric,omitempty"`
+	Value  string `json:"value,omitempty"`
+}
+
+type DiffMetric struct {
+	Metric    string `json:"metric,omitempty"`
+	Container string `json:"container,omitempty"`
+}
+
 // +k8s:openapi-gen=true
 type JudgeSpec struct {
 	Image string   `json:"image,omitempty"`
 	Cmd   []string `json:"cmd,omitempty"`
+
+	DiffMetrics      []DiffMetric      `json:"diffMetrics,omitempty"`
+	ThresholdMetrics []ThresholdMetric `json:"thresholdMetrics,omitempty"`
 }
 
 // CanaryPolicyStatus defines the observed state of CanaryPolicy

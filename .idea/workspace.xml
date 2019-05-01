@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0bd1bff4-2993-4070-8bd2-158e107d3c2a" name="Default Changelist" comment="">
+    <list default="true" id="0bd1bff4-2993-4070-8bd2-158e107d3c2a" name="Default Changelist" comment="canary: added phase reconciliation cycle">
+      <change afterPath="$PROJECT_DIR$/example/judge/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/judge/go.mod" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/judge/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/00-canary-policy.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/00-canary-policy.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/02-aggregator-deployment.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/02-aggregator-deployment.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/02-storage-deployment.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/02-storage-deployment.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/10-aggregator-canary.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/10-aggregator-canary.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/testjob/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/example/testjob/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/canary/canary_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/canary/canary_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/canary/test_reconciler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/canary/test_reconciler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/deployment/baseline_reconciler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/deployment/baseline_reconciler.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,20 +29,41 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/pkg/controller/canary/canary_controller.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1875">
-                  <caret line="125" column="26" selection-start-line="125" selection-start-column="26" selection-end-line="125" selection-end-column="26" />
+                <state relative-caret-position="516">
+                  <caret line="203" selection-start-line="203" selection-end-line="203" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/pkg/controller/canary/test_reconciler.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="660">
+                  <caret line="44" column="9" lean-forward="true" selection-start-line="44" selection-start-column="9" selection-end-line="44" selection-end-column="9" />
                   <folding>
-                    <element signature="e#16#576#0" expanded="true" />
+                    <element signature="e#16#311#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go">
+            <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="555">
-                  <caret line="117" column="26" selection-start-line="117" selection-start-column="26" selection-end-line="117" selection-end-column="26" />
+                <state relative-caret-position="705">
+                  <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
+                  <folding>
+                    <element signature="e#12#158#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/example/testjob/main.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="255">
+                  <caret line="23" column="29" lean-forward="true" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
                 </state>
               </provider>
             </entry>
@@ -40,8 +71,38 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/baseline_reconciler.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="75">
-                  <caret line="13" column="30" selection-start-line="13" selection-start-column="30" selection-end-line="13" selection-end-column="30" />
+                <state relative-caret-position="600">
+                  <caret line="83" column="62" selection-start-line="83" selection-start-column="62" selection-end-line="83" selection-end-column="62" />
+                  <folding>
+                    <element signature="e#20#304#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/example/02-storage-deployment.yaml">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="105">
+                  <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/example/02-aggregator-deployment.yaml">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="375">
+                  <caret line="25" column="40" lean-forward="true" selection-start-line="25" selection-end-line="26" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/example/10-aggregator-canary.yaml">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="225">
+                  <caret line="15" column="27" lean-forward="true" selection-start-line="15" selection-start-column="27" selection-end-line="15" selection-end-column="27" />
                 </state>
               </provider>
             </entry>
@@ -51,22 +112,43 @@
       <split-second>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="600">
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go">
+            <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="960">
-                  <caret line="64" column="1" selection-start-line="64" selection-start-column="1" selection-end-line="64" selection-end-column="1" />
+                <state relative-caret-position="351">
+                  <caret line="127" column="21" selection-start-line="127" selection-start-column="21" selection-end-line="127" selection-end-column="21" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/canary_config_reconciler.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="262">
+                  <caret line="26" column="23" lean-forward="true" selection-start-line="26" selection-start-column="23" selection-end-line="26" selection-end-column="23" />
                   <folding>
-                    <element signature="e#12#69#0" expanded="true" />
+                    <element signature="e#20#304#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/pkg/controller/canary/judge_reconciler.go">
+            <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/canary_predicate.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="510">
-                  <caret line="42" column="9" lean-forward="true" selection-start-line="42" selection-start-column="9" selection-end-line="42" selection-end-column="9" />
+                <state relative-caret-position="540">
+                  <caret line="38" column="5" selection-start-line="38" selection-start-column="5" selection-end-line="38" selection-end-column="5" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/canary_reconciler.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="285">
+                  <caret line="19" column="18" lean-forward="true" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
+                  <folding>
+                    <element signature="e#20#122#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -74,8 +156,20 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/example/00-canary-policy.yaml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="105">
-                  <caret line="7" column="28" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+                <state relative-caret-position="315">
+                  <caret line="21" column="29" lean-forward="true" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/example/judge/main.go">
+              <provider selected="true" editor-type-id="text-editor">
+                <state>
+                  <caret column="12" lean-forward="true" selection-start-column="12" selection-end-column="12" />
+                  <folding>
+                    <element signature="e#14#68#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -160,7 +254,6 @@
         <option value="$PROJECT_DIR$/pkg/controller/deployment/canary_predicate.go" />
         <option value="$PROJECT_DIR$/pkg/controller/deployment/canary_reconciler.go" />
         <option value="$PROJECT_DIR$/example/02-nginx-canary.yaml" />
-        <option value="$PROJECT_DIR$/pkg/controller/deployment/service_reconciler.go" />
         <option value="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/destinationrule_types.go" />
         <option value="$PROJECT_DIR$/example/01-nginx-deployment.yaml" />
         <option value="$PROJECT_DIR$/pkg/apis/networking/v1alpha3/virtualservice_types_pb.go" />
@@ -171,28 +264,30 @@
         <option value="$PROJECT_DIR$/pkg/controller/deployment/canary_config_reconciler.go" />
         <option value="$PROJECT_DIR$/pkg/controller/canary/judge_reconciler.go" />
         <option value="$PROJECT_DIR$/pkg/reporter/github.go" />
-        <option value="$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go" />
         <option value="$PROJECT_DIR$/infra/istio-1.1.4/install/kubernetes/helm/istio/charts/pilot/values.yaml" />
         <option value="$PROJECT_DIR$/infra/istio-1.1.4/install/kubernetes/helm/istio/charts/mixer/values.yaml" />
-        <option value="$PROJECT_DIR$/pkg/controller/canary/canary_controller.go" />
         <option value="$PROJECT_DIR$/example/app/server/main.go" />
         <option value="$PROJECT_DIR$/example/app/server/cmd/v2/main.go" />
         <option value="$PROJECT_DIR$/example/app/server/cmd/v1/main.go" />
         <option value="$PROJECT_DIR$/example/01-deployment.yaml" />
-        <option value="$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go" />
-        <option value="$PROJECT_DIR$/pkg/controller/canary/test_reconciler.go" />
-        <option value="$PROJECT_DIR$/pkg/controller/deployment/baseline_reconciler.go" />
-        <option value="$PROJECT_DIR$/example/02-storage-deployment.yaml" />
         <option value="$PROJECT_DIR$/example/testjob/Dockerfile" />
         <option value="$PROJECT_DIR$/example/10-nginx-canary.yaml" />
         <option value="$PROJECT_DIR$/example/01-gw.yaml" />
         <option value="$PROJECT_DIR$/example/01-vs.yaml" />
+        <option value="$PROJECT_DIR$/infra/istio-1.1.4/install/kubernetes/helm/istio/values.yaml" />
+        <option value="$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go" />
+        <option value="$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go" />
+        <option value="$PROJECT_DIR$/pkg/controller/deployment/service_reconciler.go" />
+        <option value="$PROJECT_DIR$/pkg/controller/canary/test_reconciler.go" />
+        <option value="$PROJECT_DIR$/example/02-aggregator-deployment.yaml" />
+        <option value="$PROJECT_DIR$/example/02-storage-deployment.yaml" />
+        <option value="$PROJECT_DIR$/pkg/controller/deployment/baseline_reconciler.go" />
         <option value="$PROJECT_DIR$/example/testjob/main.go" />
         <option value="$PROJECT_DIR$/example/10-aggregator-canary.yaml" />
-        <option value="$PROJECT_DIR$/infra/istio-1.1.4/install/kubernetes/helm/istio/values.yaml" />
-        <option value="$PROJECT_DIR$/example/02-aggregator-deployment.yaml" />
-        <option value="$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go" />
+        <option value="$PROJECT_DIR$/pkg/controller/canary/canary_controller.go" />
+        <option value="$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go" />
         <option value="$PROJECT_DIR$/example/00-canary-policy.yaml" />
+        <option value="$PROJECT_DIR$/example/judge/main.go" />
       </list>
     </option>
   </component>
@@ -239,7 +334,40 @@
             <path>
               <item name="krane" type="b2602c69:ProjectViewProjectNode" />
               <item name="krane" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="judge" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="krane" type="b2602c69:ProjectViewProjectNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="testjob" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="krane" type="b2602c69:ProjectViewProjectNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
               <item name="pkg" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="krane" type="b2602c69:ProjectViewProjectNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
+              <item name="pkg" type="462c0819:PsiDirectoryNode" />
+              <item name="apis" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="krane" type="b2602c69:ProjectViewProjectNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
+              <item name="pkg" type="462c0819:PsiDirectoryNode" />
+              <item name="apis" type="462c0819:PsiDirectoryNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="krane" type="b2602c69:ProjectViewProjectNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
+              <item name="pkg" type="462c0819:PsiDirectoryNode" />
+              <item name="apis" type="462c0819:PsiDirectoryNode" />
+              <item name="krane" type="462c0819:PsiDirectoryNode" />
+              <item name="v1" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="krane" type="b2602c69:ProjectViewProjectNode" />
@@ -278,17 +406,18 @@
     <property name="go.gopath.indexing.explicitly.defined" value="true" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.vendoring.notification.had.been.shown" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/example/judge" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="go.dep" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/example/app/server/cmd/v2" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/example/app/server/cmd/v1" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/example/judge" />
+      <recent name="$PROJECT_DIR$/example/app/server/cmd/v2" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -328,7 +457,7 @@
       <window_info active="true" content_ui="combo" id="Project" order="2" sideWeight="0.49881798" visible="true" weight="0.15871121" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3286052" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.2671395" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.24980299" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.40318158" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -336,7 +465,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info anchor="bottom" id="Terminal" order="10" weight="0.27817178" />
+      <window_info anchor="bottom" id="Terminal" order="10" visible="true" weight="0.27817178" />
       <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" weight="0.32950193" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -369,33 +498,15 @@
     <MESSAGE value="example: added istio services example" />
     <MESSAGE value="example: reconfigured to use the istio aggregator/storage example and added testjob first implementation" />
     <MESSAGE value="istio: enabled mTLS for e2e service authorization" />
-    <option name="LAST_COMMIT_MESSAGE" value="istio: enabled mTLS for e2e service authorization" />
+    <MESSAGE value="example: corrected policy binding for the new example" />
+    <MESSAGE value="deployment: Canary config creation will now happen only after everything else is reconciled successfully" />
+    <MESSAGE value="canary: added phase reconciliation cycle" />
+    <option name="LAST_COMMIT_MESSAGE" value="canary: added phase reconciliation cycle" />
   </component>
   <component name="VgoProject">
     <proxy>direct</proxy>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/pkg/apis/apis.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vendor/github.com/golang/protobuf/jsonpb/jsonpb.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
-          <caret line="141" column="49" lean-forward="true" selection-start-line="141" selection-start-column="45" selection-end-line="141" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vendor/github.com/gogo/protobuf/proto/text.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="8" selection-start-column="8" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vendor/github.com/golang/protobuf/proto/lib.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="430">
@@ -587,13 +698,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/dr_reconciler.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="735">
-          <caret line="59" column="47" selection-start-line="59" selection-start-column="47" selection-end-line="59" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vendor/sigs.k8s.io/controller-runtime/pkg/controller/controllerutil/controllerutil.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="915">
@@ -638,20 +742,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/test_reconciler.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="117" column="5" lean-forward="true" selection-start-line="117" selection-start-column="5" selection-end-line="117" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/canary_predicate.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="38" column="5" selection-start-line="38" selection-start-column="5" selection-end-line="38" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cmd/manager/main.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-105">
@@ -676,13 +766,6 @@
     <entry file="file://$PROJECT_DIR$/infra/istio-1.1.4/install/kubernetes/helm/istio-init/values.yaml">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/10-aggregator-canary.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/infra/istio-1.1.4/install/kubernetes/helm/istio/values.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1085">
@@ -697,34 +780,55 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/02-aggregator-deployment.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="19" lean-forward="true" selection-start-line="6" selection-start-column="19" selection-end-line="6" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="24" column="58" lean-forward="true" selection-start-line="24" selection-start-column="58" selection-end-line="24" selection-end-column="58" />
-          <folding>
-            <element signature="e#12#158#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/example/02-storage-deployment.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="18" lean-forward="true" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/testjob/Dockerfile">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
           <caret line="21" column="23" lean-forward="true" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/dr_reconciler.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="735">
+          <caret line="59" column="47" selection-start-line="59" selection-start-column="47" selection-end-line="59" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vendor/sigs.k8s.io/controller-runtime/pkg/handler/enqueue_owner.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="77" column="1" lean-forward="true" selection-start-line="77" selection-start-column="1" selection-end-line="77" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/canary_predicate.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="38" column="5" selection-start-line="38" selection-start-column="5" selection-end-line="38" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/service_reconciler.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="71" column="4" selection-start-line="71" selection-start-column="4" selection-end-line="74" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="45" column="4" selection-start-line="45" selection-start-column="4" selection-end-line="45" selection-end-column="4" />
+          <folding>
+            <element signature="e#12#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/judge_reconciler.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="42" column="9" lean-forward="true" selection-start-line="42" selection-start-column="9" selection-end-line="42" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -738,78 +842,109 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/testjob/main.go">
+    <entry file="file://$PROJECT_DIR$/vendor/k8s.io/api/core/v1/types.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="40" selection-start-line="40" selection-end-line="40" />
+        <state relative-caret-position="300">
+          <caret line="1986" column="4" selection-start-line="1986" selection-start-column="4" selection-end-line="1986" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/test_reconciler.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="660">
+          <caret line="44" column="9" lean-forward="true" selection-start-line="44" selection-start-column="9" selection-end-line="44" selection-end-column="9" />
           <folding>
-            <element signature="e#14#41#0" expanded="true" />
+            <element signature="e#16#311#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/canary_config_reconciler.go">
+    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/baseline_reconciler.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="33" column="27" lean-forward="true" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
+        <state relative-caret-position="600">
+          <caret line="83" column="62" selection-start-line="83" selection-start-column="62" selection-end-line="83" selection-end-column="62" />
           <folding>
             <element signature="e#20#304#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/canary_controller.go">
+    <entry file="file://$PROJECT_DIR$/example/02-aggregator-deployment.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1875">
-          <caret line="125" column="26" selection-start-line="125" selection-start-column="26" selection-end-line="125" selection-end-column="26" />
-          <folding>
-            <element signature="e#16#576#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="375">
+          <caret line="25" column="40" lean-forward="true" selection-start-line="25" selection-end-line="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canary_types.go">
+    <entry file="file://$PROJECT_DIR$/example/testjob/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="960">
-          <caret line="64" column="1" selection-start-line="64" selection-start-column="1" selection-end-line="64" selection-end-column="1" />
-          <folding>
-            <element signature="e#12#69#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/service_reconciler.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="38" column="1" lean-forward="true" selection-start-line="38" selection-start-column="1" selection-end-line="38" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/baseline_reconciler.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="13" column="30" selection-start-line="13" selection-start-column="30" selection-end-line="13" selection-end-column="30" />
+        <state relative-caret-position="255">
+          <caret line="23" column="29" lean-forward="true" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/deployment_controller.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="117" column="26" selection-start-line="117" selection-start-column="26" selection-end-line="117" selection-end-column="26" />
+        <state relative-caret-position="351">
+          <caret line="127" column="21" selection-start-line="127" selection-start-column="21" selection-end-line="127" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/judge_reconciler.go">
+    <entry file="file://$PROJECT_DIR$/example/02-storage-deployment.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="42" column="9" lean-forward="true" selection-start-line="42" selection-start-column="9" selection-end-line="42" selection-end-column="9" />
+        <state relative-caret-position="105">
+          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/controller/canary/canary_controller.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="516">
+          <caret line="203" selection-start-line="203" selection-end-line="203" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/10-aggregator-canary.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="27" lean-forward="true" selection-start-line="15" selection-start-column="27" selection-end-line="15" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/controller/deployment/canary_config_reconciler.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="262">
+          <caret line="26" column="23" lean-forward="true" selection-start-line="26" selection-start-column="23" selection-end-line="26" selection-end-column="23" />
+          <folding>
+            <element signature="e#20#304#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/apis/krane/v1/canarypolicy_types.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="705">
+          <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
+          <folding>
+            <element signature="e#12#158#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/judge/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="12" lean-forward="true" selection-start-column="12" selection-end-column="12" />
+          <folding>
+            <element signature="e#14#68#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/example/00-canary-policy.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="28" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+        <state relative-caret-position="315">
+          <caret line="21" column="29" lean-forward="true" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
         </state>
       </provider>
     </entry>

@@ -81,7 +81,10 @@ func (r *ReconcileDeployment) createBaselineDeployment(ctx context.Context, cana
 
 	// connect selectors
 	baseline.Spec.Selector.MatchLabels[KraneTierLabel] = "baseline"
+	baseline.Spec.Selector.MatchLabels["version"] = "baseline"
+
 	baseline.Spec.Template.ObjectMeta.Labels[KraneTierLabel] = "baseline"
+	baseline.Spec.Template.ObjectMeta.Labels["version"] = "baseline"
 
 	// copy over selection labels used by the canary service
 	baseline.Spec.Template.ObjectMeta.Labels[CanaryConfigLabel] = MakeCanaryConfigName(policy, canaryInstance)

@@ -136,6 +136,7 @@ func (r *ReconcileCanary) CreateTestJob(canary *v1.Canary, policy *v1.CanaryPoli
 							Value: canary.Name,
 						},
 					}, envs...),
+					ImagePullPolicy: corev1.PullAlways,
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,
