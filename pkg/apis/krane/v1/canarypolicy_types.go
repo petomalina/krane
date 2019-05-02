@@ -39,6 +39,10 @@ type CanaryPolicySpec struct {
 	JudgeSpec JudgeSpec `json:"judge,omitempty"`
 }
 
+type JudgeSpecBoundary struct {
+	Time string `json:"time,omitempty"`
+}
+
 type TestSpecBoundary struct {
 	Time     string `json:"time,omitempty"`
 	Requests int    `json:"requests,omitempty"`
@@ -70,6 +74,8 @@ type JudgeSpec struct {
 
 	DiffMetrics      []DiffMetric      `json:"diffMetrics,omitempty"`
 	ThresholdMetrics []ThresholdMetric `json:"thresholdMetrics,omitempty"`
+
+	Boundary JudgeSpecBoundary `json:"boundary,omitempty"`
 }
 
 // CanaryPolicyStatus defines the observed state of CanaryPolicy

@@ -18,6 +18,8 @@ spec:
       requests: 600
   judge:
     image: gcr.io/petomalina/aggregator-judge:v1
+    boundary:
+      time: 10m
     diffMetrics:
       - metric: container_cpu_system_seconds_total
         container: aggregator

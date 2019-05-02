@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aggregator-deployment-canary
+  name: aggregator-deployment-11-canary
   namespace: krane
   labels:
     app: aggregator

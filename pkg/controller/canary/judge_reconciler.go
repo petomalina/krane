@@ -2,6 +2,7 @@ package canary
 
 import (
 	"context"
+	"encoding/json"
 	v1 "github.com/petomalina/krane/pkg/apis/krane/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -108,6 +109,31 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 		"version": "stable",
 	}
 
+	envs := []corev1.EnvVar{}
+	if policy.Spec.JudgeSpec.Boundary.Time != "" {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "KRANE_BOUNDARY_TIME",
+			Value: policy.Spec.JudgeSpec.Boundary.Time,
+		})
+	}
+
+	if len(policy.Spec.JudgeSpec.DiffMetrics) > 0 {
+		mm, _ := json.Marshal(policy.Spec.JudgeSpec.DiffMetrics)
+		envs = append(envs, corev1.EnvVar{
+			Name:  "KRANE_DIFF_METRICS",
+			Value: string(mm),
+		})
+	}
+
+	if len(policy.Spec.JudgeSpec.ThresholdMetrics) > 0 {
+		mm, _ := json.Marshal(policy.Spec.JudgeSpec.DiffMetrics)
+
+		envs = append(envs, corev1.EnvVar{
+			Name:  "KRANE_THRESHOLD_METRICS",
+			Value: string(mm),
+		})
+	}
+
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GetJudgeJobName(canary),
@@ -122,7 +148,7 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 					Image:           policy.Spec.JudgeSpec.Image,
 					ImagePullPolicy: corev1.PullAlways,
 					Command:         policy.Spec.JudgeSpec.Cmd,
-					Env: []corev1.EnvVar{
+					Env: append([]corev1.EnvVar{
 						{
 							// canary services have the same name as canaries themselves
 							Name:  "KRANE_TARGET",
@@ -144,15 +170,7 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 							Name:  "KRANE_NAMESPACE",
 							Value: canary.Namespace,
 						},
-						{
-							Name:  "KRANE_DIFF_METRICS",
-							Value: "",
-						},
-						{
-							Name:  "KRANE_THRESHOLD_METRICS",
-							Value: "",
-						},
-					},
+					}, envs...),
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,
