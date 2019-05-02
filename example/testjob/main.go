@@ -16,7 +16,7 @@ func main() {
 	reqs := 0
 	start := time.Now()
 
-	retries := 100
+	retries := 20
 	for {
 		_, err := http.Post("http://"+target+"/observe?metric=hits&value=1", "", nil)
 		if err != nil {
@@ -26,15 +26,19 @@ func main() {
 			}
 
 			retries--
-			fmt.Println("WARN: an error occured when hitting the service", err)
+			fmt.Println("WARN: an error occured when hitting the service", err, ", retries left:", retries)
 			time.Sleep(time.Millisecond * 500)
+		}
+
+		if reqs%100 == 0 {
+			fmt.Println("Requests progress:", reqs)
 		}
 
 		diff := time.Now().Sub(start)
 		reqs++
 
 		// break on request boundary
-		if reqLimit != 0 && reqLimit >= reqs {
+		if reqLimit != 0 && reqLimit <= reqs {
 			break
 		}
 
