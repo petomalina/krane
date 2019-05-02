@@ -174,6 +174,8 @@ func (r *ReconcileCanary) reconcileCanaryAndBaseline(ctx context.Context, cfg *v
 
 // ReconcilePhaseStatus updates the phases of the canary
 func (r *ReconcileCanary) ReconcilePhaseStatus(ctx context.Context, cfg *v1.Canary) error {
+	L := log.WithValues("canary", cfg.Name)
+
 	newStage := cfg.Status.Progress
 
 	switch cfg.Status.Progress {
@@ -200,12 +202,14 @@ func (r *ReconcileCanary) ReconcilePhaseStatus(ctx context.Context, cfg *v1.Cana
 	}
 
 	if cfg.Status.Progress != newStage {
+		L.Info("Transitioning into new stage", "oldStage", cfg.Status.Progress, "newStage", newStage)
 		cfg.Status.Progress = newStage
 		return r.client.Status().Update(ctx, cfg)
 	}
 
 	// reset the progress if it gets lost (TODO)
 	if cfg.Status.Progress == "" {
+		L.Info("Updating initialization Progress")
 		cfg.Status.Progress = v1.CanaryProgress_Initializing
 		return r.client.Status().Update(ctx, cfg)
 	}

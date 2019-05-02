@@ -41,7 +41,7 @@ type CanaryPolicySpec struct {
 
 type TestSpecBoundary struct {
 	Time     string `json:"time,omitempty"`
-	Requests int    `json:"requests.omitempty"`
+	Requests int    `json:"requests,omitempty"`
 }
 
 // +k8s:openapi-gen=true
@@ -49,7 +49,7 @@ type TestSpec struct {
 	Image string   `json:"image,omitempty"`
 	Cmd   []string `json:"cmd,omitempty"`
 
-	Boundary TestSpecBoundary `json:"boundary"`
+	Boundary TestSpecBoundary `json:"boundary,omitempty"`
 }
 
 type ThresholdMetric struct {

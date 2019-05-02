@@ -20,6 +20,7 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 	}
 
 	L.Info("Reconciling step")
+	defer L.Info("Reconciliation complete")
 
 	policy, err := r.GetCanaryPolicy(ctx, canary)
 	if err != nil {
@@ -90,8 +91,6 @@ func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Cana
 		}
 	}
 
-	L.Info("Reconciliation complete")
-
 	return judgeJob, nil
 }
 
@@ -109,11 +108,13 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 			Labels:    labels,
 		},
 		Spec: corev1.PodSpec{
+			// TODO: allow modification by user
 			Containers: []corev1.Container{
 				{
-					Name:    "judge",
-					Image:   policy.Spec.JudgeSpec.Image,
-					Command: policy.Spec.JudgeSpec.Cmd,
+					Name:            "judge",
+					Image:           policy.Spec.JudgeSpec.Image,
+					ImagePullPolicy: corev1.PullAlways,
+					Command:         policy.Spec.JudgeSpec.Cmd,
 					Env: []corev1.EnvVar{
 						{
 							// canary services have the same name as canaries themselves
@@ -122,7 +123,7 @@ func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPol
 						},
 						{
 							Name:  "KRANE_PROMETHEUS",
-							Value: "prometheus.istio-system.svc.cluster.local",
+							Value: "http://prometheus.istio-system.svc.cluster.local:9090",
 						},
 						{
 							Name:  "KRANE_CANARY",

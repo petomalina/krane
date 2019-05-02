@@ -43,7 +43,7 @@ func (r *ReconcileDeployment) createCanaryService(ctx context.Context, canaryIns
 		policy.Spec.Ports = []corev1.ServicePort{
 			{
 				Port:     80,
-				Name:     "default",
+				Name:     "http",
 				Protocol: corev1.ProtocolTCP,
 			},
 		}

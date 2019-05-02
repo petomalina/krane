@@ -22,6 +22,16 @@ func main() {
 	os.Getenv("KRANE_DIFF_METRICS")
 	os.Getenv("KRANE_THRESHOLD_METRICS")
 
+	// wait for the istio proxy
+	time.Sleep(time.Second * 10)
+
+	fmt.Println(newDiffQuery(
+		"container_cpu_system_seconds_total",
+		"aggregator",
+		"aggregator-deployment-baseline",
+		"aggregator-deployment-canary",
+	))
+
 	promCfg := api.Config{Address: os.Getenv("KRANE_PROMETHEUS")}
 	promClient, err := api.NewClient(promCfg)
 	if err != nil {

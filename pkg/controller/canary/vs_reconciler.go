@@ -41,36 +41,60 @@ func (r *ReconcileCanary) reconcileVirtualService(ctx context.Context, canary *v
 		return nil, err
 	}
 
-routesLoop:
-	for _, httpRoute := range vs.Spec.Http {
-		for _, route := range httpRoute.Route {
-			// find service with our matching destination
-			if route.Destination.Host != policy.Spec.Service {
-				continue
-			}
+	httpIndex, routeIndex := r.FindMatchingHttpAndRoute(policy.Spec.Service, vs)
+	if httpIndex == 0 || routeIndex == 0 {
+		L.Info("Could not find the matching service, waiting for the VS configuration")
+		return nil, nil
+	}
 
-			if httpRoute.Route[0].Weight == 0 {
-				// either set it to 90 because we'll use 10
-				httpRoute.Route[0].Weight = 90
-			} else { // or minuts 10 if it's already set
-				httpRoute.Route[0].Weight -= 10
-			}
+	canaryRoute := r.FindMatchingRouteInHttpRoute(canary.Name, vs.Spec.Http[httpIndex])
+	if canaryRoute != 0 {
+		L.Info("Canary route already configured, skipping VirtualService configuration", "VirtualService", vs.Name)
+		return nil, nil
+	}
 
-			httpRoute.Route = append(httpRoute.Route, &v1alpha3.HTTPRouteDestination{
-				Destination: &v1alpha3.Destination{
-					Host: canary.Name,
-				},
-				Weight: 10,
-			})
+	baseDestination := vs.Spec.Http[httpIndex].Route[routeIndex]
+	if baseDestination.Weight == 0 {
+		// either set it to 90 because we'll use 10
+		baseDestination.Weight = 90
+	} else { // or minus 10 if it's already set
+		baseDestination.Weight -= 10
+	}
 
-			err = r.client.Update(ctx, vs)
-			if err != nil {
-				return nil, err
-			}
+	vs.Spec.Http[httpIndex].Route = append(vs.Spec.Http[httpIndex].Route, &v1alpha3.HTTPRouteDestination{
+		Destination: &v1alpha3.Destination{
+			Host: canary.Name,
+		},
+		Weight: 10,
+	})
 
-			break routesLoop
-		}
+	L.Info("Updating the target virtualservice", "VirtualService", vs.Name)
+	err = r.client.Update(ctx, vs)
+	if err != nil {
+		return nil, err
 	}
 
 	return vs, nil
+}
+
+func (r *ReconcileCanary) FindMatchingHttpAndRoute(svc string, vs *v1alpha3.VirtualService) (int, int) {
+	for httpIndex, httpRoute := range vs.Spec.Http {
+		for routeIndex, route := range httpRoute.Route {
+			if route.Destination.Host == svc {
+				return httpIndex, routeIndex
+			}
+		}
+	}
+
+	return 0, 0
+}
+
+func (r *ReconcileCanary) FindMatchingRouteInHttpRoute(svc string, http *v1alpha3.HTTPRoute) int {
+	for routeIndex, route := range http.Route {
+		if route.Destination.Host == svc {
+			return routeIndex
+		}
+	}
+
+	return 0
 }
