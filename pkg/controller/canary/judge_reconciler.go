@@ -12,6 +12,10 @@ import (
 
 // reconcileDestinationRules is an idempotent function that creates/reads the baseline instance
 func (r *ReconcileCanary) reconcileJudgeJob(ctx context.Context, canary *v1.Canary) (*corev1.Pod, error) {
+	if canary.Status.Progress == v1.CanaryProgress_Cleanup {
+		return nil, nil
+	}
+
 	L := log.WithValues("canary", canary.Name, "job", "judge")
 
 	// if not testing, we are just gonna skip
@@ -99,7 +103,10 @@ func GetJudgeJobName(c *v1.Canary) string {
 }
 
 func (r *ReconcileCanary) CreateJudgeJob(canary *v1.Canary, policy *v1.CanaryPolicy) (*corev1.Pod, error) {
-	labels := map[string]string{}
+	labels := map[string]string{
+		"app":     GetJudgeJobName(canary),
+		"version": "stable",
+	}
 
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{

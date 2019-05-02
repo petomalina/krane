@@ -18,7 +18,7 @@ func (r *ReconcileCanary) reconcileVirtualService(ctx context.Context, canary *v
 
 	if canary.Status.Canary.Status == v1.CanaryPhaseStatus_Queued {
 		canary.Status.Canary.Status = v1.CanaryPhaseStatus_InProgress
-		canary.Status.Canary.Message = "Rerouting In Progress"
+		canary.Status.Canary.Message = "Rerouting Configuration In Progress"
 		err := r.client.Status().Update(ctx, canary)
 		if err != nil {
 			return nil, err
@@ -42,16 +42,28 @@ func (r *ReconcileCanary) reconcileVirtualService(ctx context.Context, canary *v
 	}
 
 	httpIndex, routeIndex := r.FindMatchingHttpAndRoute(policy.Spec.Service, vs)
-	if httpIndex == 0 || routeIndex == 0 {
+	if httpIndex == -1 || routeIndex == -1 {
 		L.Info("Could not find the matching service, waiting for the VS configuration")
 		return nil, nil
 	}
 
 	canaryRoute := r.FindMatchingRouteInHttpRoute(canary.Name, vs.Spec.Http[httpIndex])
-	if canaryRoute != 0 {
+	if canaryRoute != -1 {
+		// the canary status update will be delayed but always updated in case we are already configured and in progress
+		if canary.Status.Canary.Status == v1.CanaryPhaseStatus_InProgress {
+			canary.Status.Canary.Status = v1.CanaryPhaseStatus_Success
+			canary.Status.Canary.Message = "Rerouting Configuration In Progress"
+			err = r.client.Status().Update(ctx, canary)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		L.Info("Canary route already configured, skipping VirtualService configuration", "VirtualService", vs.Name)
 		return nil, nil
 	}
+
+	L.Info("VS", "VirtualService", vs)
 
 	baseDestination := vs.Spec.Http[httpIndex].Route[routeIndex]
 	if baseDestination.Weight == 0 {
@@ -86,7 +98,7 @@ func (r *ReconcileCanary) FindMatchingHttpAndRoute(svc string, vs *v1alpha3.Virt
 		}
 	}
 
-	return 0, 0
+	return -1, -1
 }
 
 func (r *ReconcileCanary) FindMatchingRouteInHttpRoute(svc string, http *v1alpha3.HTTPRoute) int {
@@ -96,5 +108,5 @@ func (r *ReconcileCanary) FindMatchingRouteInHttpRoute(svc string, http *v1alpha
 		}
 	}
 
-	return 0
+	return -1
 }

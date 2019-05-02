@@ -126,6 +126,18 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 		return fallbackReconcile(err)
 	}
 
+	err = r.reconcileReporting(ctx, canaryCfg)
+	if err != nil {
+		reqLogger.Info("Reporting reconciliation error", "err", err.Error())
+		return fallbackReconcile(err)
+	}
+
+	err = r.reconcileCleanup(ctx, canaryCfg)
+	if err != nil {
+		reqLogger.Info("Cleanup reconciliation error", "err", err.Error())
+		return fallbackReconcile(err)
+	}
+
 	err = r.ReconcilePhaseStatus(ctx, canaryCfg)
 	if err != nil {
 		return fallbackReconcile(err)
@@ -137,6 +149,10 @@ func (r *ReconcileCanary) Reconcile(request reconcile.Request) (reconcile.Result
 }
 
 func (r *ReconcileCanary) reconcileCanaryAndBaseline(ctx context.Context, cfg *v1.Canary) error {
+	if cfg.Status.Progress == v1.CanaryProgress_Cleanup {
+		return nil
+	}
+
 	canaryDeployment := &appsv1.Deployment{}
 	err := r.client.Get(ctx, types.NamespacedName{
 		Namespace: cfg.Namespace,
@@ -190,7 +206,8 @@ func (r *ReconcileCanary) ReconcilePhaseStatus(ctx context.Context, cfg *v1.Cana
 			cfg.Status.Canary.Status = v1.CanaryPhaseStatus_Queued
 		}
 	case v1.CanaryProgress_Canary:
-		if cfg.Status.Canary.Status == v1.CanaryPhaseStatus_Success {
+		if cfg.Status.Canary.Status == v1.CanaryPhaseStatus_Success &&
+			(cfg.Status.Judging.Status == v1.CanaryPhaseStatus_Success || cfg.Status.Judging.Status == v1.CanaryPhaseStatus_Failure) {
 			newStage = v1.CanaryProgress_Reporting
 			cfg.Status.Reporting.Status = v1.CanaryPhaseStatus_Queued
 		}

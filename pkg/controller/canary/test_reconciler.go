@@ -13,6 +13,10 @@ import (
 
 // reconcileDestinationRules is an idempotent function that creates/reads the baseline instance
 func (r *ReconcileCanary) reconcileTestJob(ctx context.Context, canary *v1.Canary) (*corev1.Pod, error) {
+	if canary.Status.Progress == v1.CanaryProgress_Cleanup {
+		return nil, nil
+	}
+
 	L := log.WithValues("canary", canary.Name, "job", "test")
 
 	// if not testing, we are just gonna skip
@@ -100,7 +104,10 @@ func GetTestJobname(c *v1.Canary) string {
 }
 
 func (r *ReconcileCanary) CreateTestJob(canary *v1.Canary, policy *v1.CanaryPolicy) (*corev1.Pod, error) {
-	labels := map[string]string{}
+	labels := map[string]string{
+		"app":     GetTestJobname(canary),
+		"version": "stable",
+	}
 
 	envs := []corev1.EnvVar{}
 	if policy.Spec.TestSpec.Boundary.Requests != 0 {
