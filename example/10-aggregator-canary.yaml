@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aggregator-deployment-11-canary
+  name: aggregator-deployment-ah87p9-canary
   namespace: krane
   labels:
     app: aggregator
-    version: canary
+    version: canary-ah87p9
     krane.sh/tier: canary
     krane.sh/canary-policy: my-app
 spec:
   selector:
     matchLabels:
       app: aggregator
-      version: canary
+      version: canary-ah87p9
       krane.sh/tier: canary
   template:
     metadata:
       labels:
         app: aggregator
-        version: canary
+        version: canary-ah87p9
         krane.sh/tier: canary
     spec:
       containers:
